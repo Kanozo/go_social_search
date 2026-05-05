@@ -1,0 +1,18 @@
+# requirements.txt
+# ──────────────────────────────────────────────────────────────────────────────
+# CAPA DE DATOS & VALIDACIÓN
+# ──────────────────────────────────────────────────────────────────────────────
+pydantic>=2.5.0             # Validación de datos y serialización (v2 estricto)
+pydantic-settings>=2.1.0    # Carga de config/settings.py con soporte para .env
+
+# ──────────────────────────────────────────────────────────────────────────────
+# SCRAPING & UTILIDADES TEMPORALES
+# ──────────────────────────────────────────────────────────────────────────────
+playwright>=1.40.0          # Automatización de navegadores (async)
+python-dateutil>=2.8.2      # relativedelta para parsing preciso de meses/años
+
+# ──────────────────────────────────────────────────────────────────────────────
+# ENTORNO & LOGGING (estándar)
+# ──────────────────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0        # Carga de .env en desarrollo
+# logging, asyncio, pathlib, typing, datetime, re → stdlib (no requieren instalación)
