@@ -4,6 +4,7 @@
 # ──────────────────────────────────────────────────────────────────────────────
 pydantic>=2.5.0             # Validación de datos y serialización (v2 estricto)
 pydantic-settings>=2.1.0    # Carga de config/settings.py con soporte para .env
+steam>=1.8.2
 
 # ──────────────────────────────────────────────────────────────────────────────
 # SCRAPING & UTILIDADES TEMPORALES
