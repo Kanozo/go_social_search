@@ -1,80 +1,95 @@
-from urllib.parse import parse_qs, unquote, urlencode, urlsplit, urlunsplit
-import re
+"""
+utils/url_clean.py
+Normalización y limpieza de URLs extraídas del scraper.
 
-# Parámetros de tracking a eliminar
-_TRACKING: frozenset[str] = frozenset({
-    "__cft__", "__tn__", "mibextid", "app", "rdid", "ref", "__eep__", "sk",
+Elimina parámetros de tracking, fragmentos y redirects de Google/Facebook
+para obtener la URL canónica de cada resultado.
+"""
+from __future__ import annotations
+
+import re
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
+
+# Parámetros de tracking/analytics que no aportan información canónica
+_TRACKING_PARAMS: frozenset[str] = frozenset({
+    # UTM (Google Analytics)
+    "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content",
+    # Facebook
+    "fbclid", "fb_action_ids", "fb_action_types", "fb_ref", "fb_source",
+    # Google
+    "gclid", "gclsrc", "dclid",
+    # Generales
+    "_ga", "_gl", "ref", "referrer", "source", "medium",
+    # Twitter
+    "twclid",
+    # Microsoft
+    "msclkid",
 })
 
-def clean_url(url: str, remove_tracking: bool = True) -> str:
-    """Limpia y normaliza una URL, decodificando caracteres escapados.
+# Patrones de URL de redirect de Google CSE
+_GOOGLE_REDIRECT_PATTERN = re.compile(
+    r"https?://(?:www\.)?google\.com/url\?.*?(?:url|q)=([^&]+)", re.IGNORECASE
+)
+
+
+def clean_url(raw_url: str) -> str:
+    """
+    Normaliza una URL eliminando parámetros de tracking y resolviendo redirects.
+
+    Operaciones aplicadas en orden:
+      1. Resolver redirects de Google (``google.com/url?q=...``)
+      2. Eliminar el fragmento (``#section``)
+      3. Eliminar parámetros de tracking conocidos
+      4. Reconstruir la URL limpia
 
     Args:
-        url: URL cruda, posiblemente con secuencias %XX.
-        remove_tracking: Si es True, elimina parámetros de tracking
-            típicos de Facebook (por defecto True).
+        raw_url: URL cruda extraída del scraper (puede ser un redirect).
 
     Returns:
-        URL limpia, lista para ser almacenada.
+        URL normalizada y limpia.
 
-    Raises:
-        ValueError: Si la URL no puede ser parseada.
-
-    Examples:
-        >>> clean_url("https://www.facebook.com/CiberCubaNoticias/photos/"
-        ...           "%EF%B8%8F-otro-apag%C3%B3n-golpea-a-varios-municipios-"
-        ...           "habaneroscibercuba-te-lo-explica-un-nue/1439644548208065/")
-        'https://www.facebook.com/CiberCubaNoticias/photos/️-otro-apagón-golpea-a-varios-municipios-habaneroscibercuba-te-lo-explica-un-nue/1439644548208065/'
-
-        >>> clean_url("https://m.facebook.com/story.php?story_fbid=123&__tn__=HH-R")
-        'https://www.facebook.com/story.php?story_fbid=123'
+    Example:
+        >>> clean_url("https://www.facebook.com/post/123?fbclid=abc&utm_source=x")
+        'https://www.facebook.com/post/123'
     """
-    if not url:
-        raise ValueError("URL vacía")
+    if not raw_url or not raw_url.startswith(("http://", "https://")):
+        return raw_url
 
-    # 1. Limpieza previa de comillas y caracteres extraños heredada del scraper
-    url = url.strip().strip('"').strip("\u201c\u201d'").rstrip(")*")
-    # Convertir a https y unificar host
-    url = re.sub(r"^http://", "https://", url, flags=re.I)
-    url = re.sub(r"^https://m\.facebook", "https://www.facebook", url, flags=re.I)
-    url = re.sub(r"^https://fb\.com/", "https://www.facebook.com/", url, flags=re.I)
+    # 1. Resolver redirect de Google
+    redirect_match = _GOOGLE_REDIRECT_PATTERN.search(raw_url)
+    if redirect_match:
+        from urllib.parse import unquote
+        raw_url = unquote(redirect_match.group(1))
 
-    # 2. Parsear la URL en componentes
-    parsed = urlsplit(url)
-    scheme = parsed.scheme
-    netloc = parsed.netloc
-    path = parsed.path or "/"
-    query = parsed.query
-    fragment = parsed.fragment  # normalmente vacío, pero lo respetamos
+    try:
+        parsed = urlparse(raw_url)
+    except ValueError:
+        return raw_url
 
-    # 3. Decodificar ruta segmento a segmento para no romper separadores
-    segments = path.split("/")
-    decoded_segments = []
-    for seg in segments:
-        # unquote convierte %XX a caracteres Unicode (UTF-8)
-        decoded_segments.append(unquote(seg))
-    decoded_path = "/".join(decoded_segments)
-
-    # 4. Decodificar y limpiar query string
-    decoded_query = ""
-    if query and remove_tracking:
-        qs = parse_qs(query, keep_blank_values=True)
-        clean_qs = {
-            unquote(k): [unquote(v) for v in vs]
-            for k, vs in qs.items()
-            if not any(k.startswith(t.rstrip("_")) for t in _TRACKING)
+    # 2. Eliminar fragmento
+    # 3. Filtrar parámetros de tracking
+    if parsed.query:
+        params = parse_qs(parsed.query, keep_blank_values=False)
+        clean_params = {
+            key: values
+            for key, values in params.items()
+            if key.lower() not in _TRACKING_PARAMS
         }
-        decoded_query = urlencode(clean_qs, doseq=True, safe="/?&=:")  # safe para mantener estructura
-    elif query:
-        # Si no eliminamos tracking, simplemente decodificamos re-encodeando
-        qs = parse_qs(query, keep_blank_values=True)
-        decoded_qs = {unquote(k): [unquote(v) for v in vs] for k, vs in qs.items()}
-        decoded_query = urlencode(decoded_qs, doseq=True, safe="/?&=:")
-    # else: decoded_query queda ""
+        clean_query = urlencode(clean_params, doseq=True)
+    else:
+        clean_query = ""
 
-    # 5. Fragmento (raro en FB, pero por si acaso)
-    decoded_fragment = unquote(fragment) if fragment else ""
+    cleaned = urlunparse((
+        parsed.scheme,
+        parsed.netloc,
+        parsed.path,
+        parsed.params,
+        clean_query,
+        "",  # Sin fragmento
+    ))
 
-    # 6. Reconstruir URL
-    clean = urlunsplit((scheme, netloc, decoded_path, decoded_query, decoded_fragment))
-    return clean
+    # Eliminar trailing slash solo si no hay path significativo
+    if cleaned.endswith("/") and cleaned.count("/") <= 3:
+        cleaned = cleaned.rstrip("/")
+
+    return cleaned

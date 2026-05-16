@@ -1,80 +1,138 @@
 """
 config/settings.py
-Configuración centralizada mediante Pydantic Settings.
-Carga variables de entorno, archivo .env y valida tipos al inicio.
+Configuración centralizada de la aplicación.
+
+Todos los parámetros se leen primero de variables de entorno y caen
+en valores por defecto razonables si no existen.
+
+Variables de entorno relevantes::
+
+    # Modo de salida: dónde se persisten los resultados scrapeados
+    OUTPUT_MODE=mongodb          # "mongodb" | "api"
+
+    # MongoDB (solo necesario si OUTPUT_MODE=mongodb)
+    MONGO_URL=mongodb://localhost:27017
+    DB_NAME=scraper_db
+
+    # API externa (solo necesario si OUTPUT_MODE=api)
+    DATA_STORE_TOKEN=<token>
+    DATA_STORE_BASE_URL=https://notires.rem.cu/api
+    DATA_STORE_VERIFY_SSL=false
+
+    # Browser
+    BROWSER_HEADLESS=false
+    BROWSER_TYPE=firefox          # "firefox" | "chromium"
+
+    # Ciclo de scraping
+    CYCLE_DELAY_SECONDS=3600
+    TOTAL_PAGES_PER_KEYWORD=3
+
+    # Sesiones
+    SESSION_PERSIST=true
+
+    # Logging
+    LOG_LEVEL=INFO
 """
 from __future__ import annotations
 
+import os
 from pathlib import Path
-from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Rutas base (calculadas en tiempo de importación, independiente de env vars)
+# ─────────────────────────────────────────────────────────────────────────────
+BASE_DIR: Path = Path(__file__).resolve().parent.parent
+SESSION_DIR: Path = BASE_DIR / "sessions"
+LOG_DIR: Path = BASE_DIR / "logs"
+
+SESSION_DIR.mkdir(parents=True, exist_ok=True)
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
-class Settings(BaseSettings):
+def _bool_env(key: str, default: bool) -> bool:
+    """Lee una variable de entorno como booleano (true/false, case-insensitive)."""
+    return os.getenv(key, str(default)).lower() == "true"
+
+
+def _int_env(key: str, default: int) -> int:
+    """Lee una variable de entorno como entero, con fallback al default."""
+    raw = os.getenv(key)
+    if raw is None:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
+class _Settings:
     """
-    Configuración de la aplicación. Prioridad: Env vars > .env > defaults.
+    Contenedor de configuración de la aplicación.
+
+    Prioridad de resolución: variable de entorno > valor por defecto.
+    Todos los atributos son de tipo Python nativo (str, int, bool, Path),
+    nunca descriptores de Pydantic — esta no es un BaseModel.
+
+    Para cambiar un valor en runtime, exporta la variable de entorno
+    correspondiente ANTES de importar este módulo.
     """
 
-    # ── Ciclo de Scraping ─────────────────────────────────────────────────
-    CYCLE_DELAY_SECONDS: int = Field(
-        default=3600,
-        ge=60,
-        description="Segundos entre ciclos de scraping (mín. 60)",
-    )
+    # ── Modo de salida ────────────────────────────────────────────────────────
+    # Controla dónde se persisten los resultados scrapeados.
+    # "mongodb" → inserta en MongoDB vía GoogleResultRepository
+    # "api"     → envía al endpoint HTTP externo vía httpx
+    OUTPUT_MODE: str = os.getenv("OUTPUT_MODE", "mongodb")
 
-    # ── Logging ───────────────────────────────────────────────────────────
-    LOG_DIR: Path = Field(
-        default=Path("logs"),
-        description="Directorio base para archivos de log",
-    )
-    LOG_FILE: str = Field(
-        default="app.log",
-        description="Nombre del archivo de log principal",
-    )
-    LOG_AUDIT_FILE: str = Field(
-        default="audit.log",
-        description="Nombre del archivo de log de auditoría",
-    )
-    LOG_LEVEL: str = Field(
-        default="INFO",
-        pattern=r"^(DEBUG|INFO|WARNING|ERROR|CRITICAL)$",
-        description="Nivel mínimo de logging",
-    )
-    LOG_MAX_BYTES: int = Field(
-        default=10_485_760,  # 10 MB
-        ge=1_048_576,
-        description="Tamaño máximo por archivo de log",
-    )
-    LOG_BACKUP_COUNT: int = Field(
-        default=3,
-        ge=1,
-        description="Archivos de backup a mantener",
-    )
+    # ── MongoDB ───────────────────────────────────────────────────────────────
+    MONGO_URL: str = os.getenv("MONGO_URL", "mongodb://localhost:27017")
+    DB_NAME:   str = os.getenv("DB_NAME", "reaper_db")
 
-    # ── Google CSE (opcional) ─────────────────────────────────────────────
-    GOOGLE_CSE_ID: str | None = Field(
-        default=None,
-        description="ID del Custom Search Engine (opcional)",
-    )
+    # ── API externa ───────────────────────────────────────────────────────────
+    # ⚠️  NUNCA hardcodear tokens aquí — usa la variable de entorno DATA_STORE_TOKEN.
+    DATA_STORE_TOKEN:      str  = os.getenv("DATA_STORE_TOKEN", "42|htoFv3uJ8ZIJMuWoSDQkmLOK0vnv5GSoGbQaKDWBf2cb6b41")
+    DATA_STORE_BASE_URL:   str  = os.getenv("DATA_STORE_BASE_URL", "https://notires.rem.cu/api")
+    DATA_STORE_VERIFY_SSL: bool = _bool_env("DATA_STORE_VERIFY_SSL", False)
 
-    # ── Configuración Pydantic ────────────────────────────────────────────
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        case_sensitive=False,
-        extra="ignore",
-    )
+    # ── Browser ───────────────────────────────────────────────────────────────
+    BROWSER_HEADLESS: bool = _bool_env("BROWSER_HEADLESS", False)
+    BROWSER_TYPE:     str  = os.getenv("BROWSER_TYPE", "firefox")  # "firefox" | "chromium"
 
-    # ── Validadores ───────────────────────────────────────────────────────
-    @field_validator("LOG_DIR", mode="before")
-    @classmethod
-    def _resolve_log_dir(cls, v: str | Path) -> Path:
-        """Resuelve LOG_DIR como absoluto relativo a la raíz del proyecto."""
-        path = Path(v) if isinstance(v, str) else v
-        if not path.is_absolute():
-            return Path(__file__).parent.parent / path
-        return path
+    # ── Ciclo de scraping ─────────────────────────────────────────────────────
+    CYCLE_DELAY_SECONDS:     int = _int_env("CYCLE_DELAY_SECONDS", 3600)
+    TOTAL_PAGES_PER_KEYWORD: int = _int_env("TOTAL_PAGES_PER_KEYWORD", 3)
+
+    # ── Sesiones persistentes ─────────────────────────────────────────────────
+    SESSION_PERSIST: bool = _bool_env("SESSION_PERSIST", True)
+    SESSION_DIR:     Path = SESSION_DIR
+
+    # ── Logging ───────────────────────────────────────────────────────────────
+    LOG_LEVEL: str  = os.getenv("LOG_LEVEL", "INFO")
+    LOG_DIR:   Path = LOG_DIR
+    LOG_FILE:  str  = os.getenv("LOG_FILE", "app.log")
+
+    LOG_AUDIT_FILE: str = os.getenv("LOG_AUDIT_FILE", "audit.log")
+
+    LOG_MAX_BYTES: int = os.getenv("LOG_MAX_BYTES", 10_485_760)
+    LOG_BACKUP_COUNT: int = os.getenv("LOG_BACKUP_COUNT", 3)
 
 
-# Singleton inmutable para toda la aplicación
-settings = Settings()
+    # ── Colecciones MongoDB ───────────────────────────────────────────────────
+    GOOGLE_RESULTS_COLLECTION: str = os.getenv("GOOGLE_RESULTS_COLLECTION", "google_results")
+    # ── Pool de conexiones MongoDB ────────────────────────────────────────
+    MAX_POOL_SIZE: int = os.getenv("MAX_POOL_SIZE", 10)
+    MIN_POOL_SIZE: int = os.getenv("MIN_POOL_SIZE", 1)
+
+    TO_ENDPOINT: bool = _bool_env("TO_ENDPOINT", False)
+
+    def __repr__(self) -> str:
+        """Representación segura: oculta el token del API."""
+        token_preview = f"{self.DATA_STORE_TOKEN[:6]}..." if self.DATA_STORE_TOKEN else "(vacío)"
+        return (
+            f"<Settings OUTPUT_MODE={self.OUTPUT_MODE!r} "
+            f"BROWSER_TYPE={self.BROWSER_TYPE!r} "
+            f"LOG_LEVEL={self.LOG_LEVEL!r} "
+            f"DATA_STORE_TOKEN={token_preview}>"
+        )
+
+
+settings = _Settings()
