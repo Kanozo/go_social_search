@@ -3,6 +3,11 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
 
 # Entornos virtuales
 .venv/
@@ -10,4 +15,17 @@ venv/
 env/
 .env
 
-logs/
+# Playwright
+.playwright/
+
+# Reaper — datos generados en runtime
+data/debug_artifacts/
+data/results/
+data/
+
+# Tests
+.pytest_cache/
+.coverage
+tests/
+
+toDoList.md

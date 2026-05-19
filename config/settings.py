@@ -122,7 +122,7 @@ class _Settings:
     MAX_POOL_SIZE: int = os.getenv("MAX_POOL_SIZE", 10)
     MIN_POOL_SIZE: int = os.getenv("MIN_POOL_SIZE", 1)
 
-    TO_ENDPOINT: bool = _bool_env("TO_ENDPOINT", False)
+    TO_ENDPOINT: bool = _bool_env("TO_ENDPOINT", True)
 
     def __repr__(self) -> str:
         """Representación segura: oculta el token del API."""
