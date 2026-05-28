@@ -1,9 +1,0 @@
-2026-05-19 11:15:11 - database - INFO - [core_db.py:109] - connect() - Conectando a MongoDB (intento 1/3)…
-2026-05-19 11:15:11 - database - INFO - [core_db.py:125] - connect() - Conexión exitosa a 'reaper_db'.
-2026-05-19 11:15:11 - database - INFO - [core_db.py:250] - initialize() - Repositorio 'google_results' inicializado.
-2026-05-19 11:16:42 - database - INFO - [google_result_db.py:88] - bulk_insert_skip_existing() - Bulk insert completado: 30 nuevos documentos insertados.
-2026-05-19 11:17:58 - database - INFO - [google_result_db.py:100] - bulk_insert_skip_existing() - Bulk insert: 0 nuevos, 6 omitidos (ya existentes).
-2026-05-19 11:19:32 - database - INFO - [google_result_db.py:88] - bulk_insert_skip_existing() - Bulk insert completado: 30 nuevos documentos insertados.
-2026-05-19 11:21:36 - database - INFO - [core_db.py:109] - connect() - Conectando a MongoDB (intento 1/3)…
-2026-05-19 11:21:36 - database - INFO - [core_db.py:125] - connect() - Conexión exitosa a 'reaper_db'.
-2026-05-19 11:21:36 - database - INFO - [core_db.py:250] - initialize() - Repositorio 'google_results' inicializado.

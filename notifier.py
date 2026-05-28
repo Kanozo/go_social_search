@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import asyncio
 import logging
+import socks
 from pathlib import Path
 from typing import Any, Union
-#import socks
 
+from database import PostRepository, SQLiteManager
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 from telethon import TelegramClient
 from telethon.sessions import StringSession # Importante para usar SESSION_STRING
@@ -15,7 +19,7 @@ from telethon.errors import (
     SessionPasswordNeededError,
 )
 
-logger = logging.getLogger(__name__)
+USE_PROXY = False
 
 class TelegramNotifier:
     def __init__(
@@ -32,8 +36,9 @@ class TelegramNotifier:
             session_storage = StringSession(session)
         else:
             session_storage = str(Path(session))
-        #PROXY = (socks.HTTP, '192.168.30.120', 3128, True)
-        self._client = TelegramClient(session_storage, api_id, api_hash)#, proxy=PROXY)
+
+        PROXY = (socks.HTTP, '192.168.30.120', 3128, True) if USE_PROXY else None
+        self._client = TelegramClient(session_storage, api_id, api_hash, proxy=PROXY)
         self._group_target = group_target
         self._is_connected = False
 
@@ -75,3 +80,38 @@ class TelegramNotifier:
 
     async def __aexit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
         await self.disconnect()
+
+async def main() -> None:
+    # Simulación de carga de variables (usar .env en realidad)
+    API_ID = 12880411
+    API_HASH = "fac717534b467665c05b1d417df5f30d"
+    SESSION_STRING = "1AZWarzoBuwsp1OJGdT3yKstph4RBFSb9-gGWzLZKcD_RvSm7l0YPu0T-f7KiSF_aTXHo70JpIFAYGvRJDCR1pshDYKRRFnb45RuDPziOAwCJ4vctZhwfl0tt5PG3bjn3W30bEYB91qz77aKtBpCKeFCiu4HZCzZeJRBikw2hQSwzmZKyJQ25aPLKWF0RGUKRnhvp3ngCiC3kfKqeVD77Wm69smhrZcTXfbXlPa6Dg0XCB5VPPALDemafPFHarJWLPckvOErDOzt4H-zm7QL2AopPGrKYYXzHdQD495m-ONWxf7mWDx2JV0JNHgU4_LELOIGP7IF6HIUYY77Y9U8hIxehc97v1NI="
+    GROUP_TARGET = -1003857299252
+
+    manager = SQLiteManager("url_scraper.db")
+
+    await manager.connect()
+
+    repo = PostRepository(manager)
+
+    try:
+        async with TelegramNotifier(API_ID, API_HASH, SESSION_STRING, GROUP_TARGET) as bot:
+            while True: 
+                pending = await repo.get_pending_send()
+                for item in pending:
+                    if await bot.send_message(item.url):
+                        await repo.mark_sent(item.url)
+                        logger.info(f"Notificado y actualizado: {item.url}")
+                        await asyncio.sleep(2)
+                    else:
+                        logger.warning(f"No se pudo enviar: {item.url}")
+                await asyncio.sleep(120)
+
+    except Exception as e:
+        logger.error(f"Error en el proceso: {e}")
+    finally:
+        await manager.disconnect()
+        logger.info("Conexión a Base de datos cerrada.")
+
+if __name__ == "__main__":
+    asyncio.run(main())

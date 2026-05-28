@@ -11,7 +11,7 @@ pydantic-settings>=2.1.0    # Carga de config/settings.py con soporte para .env
 playwright>=1.40.0          # Automatización de navegadores (async)
 # python3 -m playwright install firefox (para instalar el navegador)
 python-dateutil>=2.8.2      # relativedelta para parsing preciso de meses/años
-pymongo>=4.17
+
 
 # ──────────────────────────────────────────────────────────────────────────────
 # ENTORNO & LOGGING (estándar)
@@ -22,5 +22,5 @@ python-dotenv>=1.0.0        # Carga de .env en desarrollo
 
 telethon>=1.43.2
 httpx>=0.28.1
-motor>=3.7.1
-
+aiosqlite>=0.20.0
+pysocks>=1.7.1

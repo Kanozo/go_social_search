@@ -1,0 +1,78 @@
+{
+  "cookies": [
+    {
+      "name": "AEC",
+      "value": "AaJma5v275nFgYNYZcNsVN4OuPtTtxOSikDnlf2HjXZ0b0HxfYgZ1Tg6FqI",
+      "domain": ".google.com",
+      "path": "/",
+      "expires": 1795505686.383,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "NID",
+      "value": "531=ZvId8WiQNiQnM-J-OImM1j2SxIcLc0QRxXiQOk8YWdTfo51KM_r_1ktOs-WEtGQlS87-EKnlZa5tVTzREM2AbHTV9gNXyP4a4YUTYEynC_aZ6vx95PiiX5jNPE5ezTVXbFFIwv1G_niDrzyYaqY7h7RhTX_YkamgTEZ3nCk_4Vtbjlfui3eG7sgGLVc703rDvZErvVx2CN1cEFYPORKZFnmW6y1VSvZk",
+      "domain": ".google.com",
+      "path": "/",
+      "expires": 1795764886.813,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "__gsas",
+      "value": "ID=cbf54f4e63c5ab0d:T=1779953704:RT=1779953704:S=ALNI_MZfHabgS4uGIA_LYKPutQL0bcjpJg",
+      "domain": ".google.com",
+      "path": "/",
+      "expires": 1813649704,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "None"
+    },
+    {
+      "name": "_GRECAPTCHA",
+      "value": "09AKhCRwh1wLNiO-1MgIMkHUOoaRoVWr0b5DxeN1DtzCSrpVIdnZKioCX68ywn81uzLSjjsncDSTEAYl5IMF-0O4g",
+      "domain": "www.google.com",
+      "path": "/recaptcha",
+      "expires": 1795505768.211,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "__Secure-STRP",
+      "value": "ANmZwa1WG1pBKc1UQ1p7GFvE-SlTijM8atWj6nObzmlOxwK-SEVus8y2wcEUmikqO_ZZTkGsSjt7VOjXJLEA8_D9tKJi0pC8aA",
+      "domain": ".google.com",
+      "path": "/",
+      "expires": 1779955710.227,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Strict"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://cse.google.com",
+      "localStorage": [
+        {
+          "name": "_grecaptcha",
+          "value": "09AKhCRwiC6Zm6YvR-8FG_lIM93TY8eMHFt5YgomGumsSMR7N5YDWo7EpPBxPgaZSUOVRg1GNugJgl3fB6jEoCETu0jpfCBNvpQJeAadOGhUube8q1_RAkZjwr__ijeJx3"
+        }
+      ]
+    },
+    {
+      "origin": "https://www.google.com",
+      "localStorage": [
+        {
+          "name": "rc::f",
+          "value": "0aAEc790K-ir6Ghtah8NEHJdeGgAqsD8_Qm4LUD7MXDYlaz3RpRmPSThgh9bCv9ZoMlkSctaA"
+        },
+        {
+          "name": "rc::a",
+          "value": "MXdzZ2ZkMjFhajg5OWk="
+        }
+      ]
+    }
+  ]
+}

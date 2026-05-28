@@ -1,21 +1,6 @@
 """
 run_scraper.py
-Orquestador principal del scraper con integración completa de anti-detección.
-
-Arquitectura de sesión:
-  - UN browser por engine (se reutiliza entre keywords para compartir estado)
-  - UN contexto por sesión (cookies y localStorage persistidos en disco)
-  - Contexto nuevo SOLO ante CAPTCHA no resoluble (nuevo fingerprint, contexto limpio)
-  - Fingerprint generado UNA vez por contexto (coherente durante toda la sesión)
-
-Flujo ante CAPTCHA:
-  1. Auto-solver intenta resolver el checkbox automáticamente
-  2. Si falla → espera resolución manual (solo si captcha_wait_for_human=True)
-  3. Si sigue fallando → cierra contexto, genera nuevo fingerprint y contexto limpio
-
-Flujo de error genérico (sin CAPTCHA):
-  - Recuperación suave: cerrar página → abrir página nueva en mismo contexto
-  - El contexto (cookies, localStorage) se mantiene intacto
+Orquestador principal: gestiona browser, contextos, SQLite y el ciclo de keywords.
 """
 from __future__ import annotations
 
@@ -23,19 +8,39 @@ import asyncio
 import logging
 import signal
 import sys
-from typing import Optional
 
 from playwright.async_api import Browser, BrowserContext, Page, async_playwright
 
 from anti_detection import BrowserFingerprint, generate_fingerprint
 from config.settings import settings
+from database import KeywordRepository, PostRepository, SQLiteManager
 from google_cse_automator import BrowserConfig, GoogleCSEAutomator
 from utils.captcha_guard import CaptchaError
 from utils.session_store import SessionStore
-from database.core_db import DatabaseManager
-from database.google_result_db import GoogleResultRepository
 
 logger = logging.getLogger(__name__)
+FILTER = None
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Keywords de fallback (solo se usan si la tabla keywords está vacía)
+# ─────────────────────────────────────────────────────────────────────────────
+
+_FALLBACK_ENGINE_CONFIG: list[dict] = [
+    {
+        "label":     "IG-KW-Engine",
+        "engine_id": "c4b97eed1414fcb14",
+        "platform":  "instagram",
+        "keywords": [
+            "#Cuba", "Cuba", "#CubaVive",
+            "#YoSigoAMiPresidente", "#CubaPorLaSalud",
+            "#TumbaElBloqueo", "#NoMasBloqueo", "#CubaNoEstaSola",
+            "#FidelPorSiempre", "#CubaCoopera", "#CubaPorLaVida",
+            "#CubaEstaFirme", "#CubaSoberana",
+            "cubanos", "habana", "havana",
+        ],
+    },
+]
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ScraperOrchestrator
@@ -45,77 +50,77 @@ class ScraperOrchestrator:
     """
     Orquestador que gestiona el ciclo de vida del browser, contextos y keywords.
 
-    Responsabilidades:
-      - Crear y destruir browsers (uno por engine)
-      - Generar fingerprints coherentes para cada sesión
-      - Detectar CAPTCHAs y coordinar recuperación con nuevo contexto
-      - Persistir sesiones entre ejecuciones del ciclo
-      - Gestionar señales de sistema (SIGINT, SIGTERM) para shutdown limpio
-
     Attributes:
-        _running:      Flag de control del bucle principal.
-        _cfg:          Parámetros de timing y comportamiento del browser.
+        _running:       Flag de control del bucle principal.
+        _cfg:           Parámetros de timing del browser.
         _session_store: Persistencia de cookies/localStorage en disco.
+        _db:            Gestor SQLite (una conexión compartida).
+        _kw_repo:       Repositorio de keywords (lectura de config + mark_scraped).
+        _post_repo:     Repositorio de posts (escritura de resultados).
     """
 
     def __init__(self) -> None:
         self._running = False
         self._cfg = BrowserConfig()
         self._session_store = SessionStore(settings.SESSION_DIR)
+        # La DB se inicializa en connect() dentro de start()
+        self._db: SQLiteManager | None = None
+        self._kw_repo: KeywordRepository | None = None
+        self._post_repo: PostRepository | None = None
 
-        self._db_manager: DatabaseManager | None = None
-        self._results_repo: GoogleResultRepository | None = None
+    # ── DB ────────────────────────────────────────────────────────────────────
+
+    async def _db_connect(self) -> None:
+        """Abre la conexión SQLite y crea los repositorios."""
+        db_path = settings.SESSION_DIR.parent / "url_scraper.db"
+        self._db = SQLiteManager(db_path)
+        await self._db.connect()
+        self._kw_repo = KeywordRepository(self._db)
+        self._post_repo = PostRepository(self._db)
+        kw_count  = await self._kw_repo.count()
+        post_count = await self._post_repo.count()
+        logger.info(
+            "SQLite listo | keywords=%d | posts=%d", kw_count, post_count
+        )
+
+    async def _db_disconnect(self) -> None:
+        """Cierra la conexión SQLite limpiamente."""
+        if self._db:
+            await self._db.disconnect()
+            self._db = None
 
     # ── Configuración de engines ─────────────────────────────────────────────
 
     async def _fetch_engines_config(self) -> list[dict]:
         """
-        Placeholder: devuelve la configuración de engines y keywords.
+        Devuelve la configuración de engines y keywords.
 
-        En producción, este método debería leer desde una base de datos,
-        un archivo de configuración o una API externa.
+        Fuente de datos: tabla ``keywords`` de SQLite, agrupada por
+        ``(engine_id, label)``. Si la tabla está vacía, carga el
+        fallback hardcodeado para el primer arranque.
 
         Returns:
-            Lista de dicts con ``engine_id``, ``label`` y ``keywords``.
+            Lista de dicts con ``engine_id``, ``label``, ``platform``
+            y ``keywords`` lista de strings.
         """
-        logger.info("[CONFIG] Cargando configuración de motores...")
-        await asyncio.sleep(0.05)  # Simula latencia de red/DB
+        if self._kw_repo is None:
+            logger.warning("_fetch_engines_config: kw_repo no inicializado.")
+            return _FALLBACK_ENGINE_CONFIG
 
-        return [
-            {"label": "IG-KW-Engine", "engine_id": "c4b97eed1414fcb14", "keywords": 
-                [
-                    "#LaPatriaSeDefiende", 'Cuba',
-                    "#CubaVive"
-                ]
-            },
-            {
-                "label": "general",
-                "engine_id": "294a079ba2d4267d5",
-                "keywords": [
-                    "https://www.facebook.com/cubasatelite/posts/*",
-                    "https://www.facebook.com/groups/3061231334163874/posts/*",
-                ],
-            },
-            {"label": "KW MONITOR", "engine_id": "b3d8ab5d4c4a84c70", "keywords":
-                [
-                    "#LaPatriaSeDefiende",
-                    "#CubaVive", "#DeZurdaTeam", "#YoSigoAMiPresidente", "#CubaPorLaSalud",
-                    "#NoAlTerrorismo"
-                ]
-            },
-            {"label": "general", "engine_id": "294a079ba2d4267d5", "keywords": [
-                    "https://www.facebook.com/PresidenciaDeCuba/posts/*",
-                    "https://www.facebook.com/gerardo.hernandez.nordelo/posts/*",
-                    "https://www.facebook.com/groups/434004943672696/posts/*",
-                    "https://www.facebook.com/groups/67706680225/posts/*",
-                    "https://www.facebook.com/profile.php?id=61575946707396/posts/*",
-                    "https://www.facebook.com/ranchueleros.por.la.libertad/posts/*",
-   
+        groups = await self._kw_repo.get_engine_groups()
 
-            ]}
-        ]
+        if not groups:
+            logger.info(
+                "Tabla keywords vacía. Usando configuración de fallback hardcodeada."
+            )
+            return _FALLBACK_ENGINE_CONFIG
 
-    # ── Helpers de contexto ──────────────────────────────────────────────────
+        logger.info(
+            "[CONFIG] %d grupos de engine cargados desde SQLite.", len(groups)
+        )
+        return groups
+
+    # ── Context helpers ───────────────────────────────────────────────────────
 
     async def _create_context_and_page(
         self,
@@ -125,50 +130,36 @@ class ScraperOrchestrator:
         session_domain: str = "google.com",
     ) -> tuple[BrowserContext, Page]:
         """
-        Crea un contexto nuevo con fingerprint, stealth, warmup y sesión persistida.
-
-        Integra las capas de anti-detección en el proceso de creación:
-          1. Fingerprint coherente aplicado al contexto (UA, locale, timezone, viewport)
-          2. Sesión persistida cargada si SESSION_PERSIST=true y session_domain no vacío
-          3. Init script de stealth inyectado antes de la primera navegación
-          4. Response interceptor para capturar 429/403
-          5. Warmup session: navegar a Google y simular actividad antes del CSE
+        Crea un contexto con fingerprint, stealth, sesión persistida y warmup.
 
         Args:
-            browser:        Browser activo (Firefox o Chromium).
-            automator:      Instancia del automator (para setup_page y warmup).
+            browser:        Browser activo.
+            automator:      Automator del engine (para setup_page y warmup).
             fingerprint:    Fingerprint coherente para esta sesión.
-            session_domain: Dominio para buscar sesión persistida en disco.
-                            Cadena vacía → siempre contexto limpio (sin sesión).
+            session_domain: Dominio para buscar sesión en disco.
+                            Cadena vacía → contexto siempre limpio.
 
         Returns:
             Tupla ``(context, page)`` lista para scraping.
         """
-        # 1. Cargar sesión persistida si está habilitada y existe en disco
         context_options = fingerprint.build_context_options()
-        saved_state = (
-            self._session_store.load_state_dict(session_domain)
-            if settings.SESSION_PERSIST and session_domain
-            else None
-        )
-        if saved_state:
-            context_options["storage_state"] = saved_state
 
-        # 2. Crear contexto con fingerprint completo
+        # Cargar sesión persistida si está habilitada
+        if settings.SESSION_PERSIST and session_domain and self._session_store:
+            saved_state = self._session_store.load_state_dict(session_domain)
+            if saved_state:
+                context_options["storage_state"] = saved_state
+
         context: BrowserContext = await browser.new_context(**context_options)
         page: Page = await context.new_page()
 
-        # 3. Aplicar stealth + response interception
         await automator.setup_page(page, fingerprint)
-
-        # 4. Warmup: navegar a Google y simular actividad humana
         await automator._warmup_session(page)
 
         logger.info(
-            "Contexto creado: OS=%s | UA=%s... | session=%s",
+            "Contexto listo: OS=%s | UA=%s…",
             fingerprint.navigator_platform,
             fingerprint.user_agent[:40],
-            "loaded" if saved_state else "fresh",
         )
         return context, page
 
@@ -180,116 +171,93 @@ class ScraperOrchestrator:
         label: str,
     ) -> tuple[BrowserContext, Page]:
         """
-        Rota la identidad ante un CAPTCHA no resoluble: cierra el contexto actual
-        y abre uno nuevo con un fingerprint completamente diferente.
-
-        Sin rotación de IP: la misma IP pero con cookies, fingerprint y localStorage
-        frescos. Suficiente para la mayoría de CAPTCHAs de checkpoint que se basan
-        en el estado de sesión, no en la IP.
-
-        Flujo:
-          1. Cerrar el contexto bloqueado (descarta cookies contaminadas)
-          2. Generar un fingerprint NUEVO (diferente OS/UA/WebGL al detectado)
-          3. Abrir contexto limpio (sin sesión persistida) + warmup
+        Rota identidad ante CAPTCHA: cierra contexto bloqueado y abre uno limpio
+        con un fingerprint completamente diferente.
 
         Args:
-            browser:     Browser activo (se REUTILIZA, no se cierra).
-            automator:   Instancia del automator.
-            old_context: Contexto bloqueado por CAPTCHA.
-            label:       Etiqueta de engine para logging.
+            browser:     Browser activo (se reutiliza).
+            automator:   Automator del engine.
+            old_context: Contexto bloqueado (se cierra aquí).
+            label:       Etiqueta del engine para logging.
 
         Returns:
-            Tupla ``(nuevo_context, nueva_page)`` lista para reintentar.
+            Tupla ``(nuevo_context, nueva_page)``.
         """
-        # 1. Cerrar el contexto bloqueado (NO guardar sesión contaminada)
         try:
             await old_context.close()
             logger.debug("[%s] Contexto bloqueado cerrado.", label)
-        except Exception as close_exc:
-            logger.debug("[%s] Error cerrando contexto: %s", label, close_exc)
+        except Exception as exc:
+            logger.debug("[%s] Error cerrando contexto: %s", label, exc)
 
-        # 2. Generar NUEVO fingerprint (diferente al que fue detectado)
-        new_fingerprint = generate_fingerprint(settings.BROWSER_TYPE)
+        new_fp = generate_fingerprint(settings.BROWSER_TYPE)
         logger.info(
-            "[%s] Nuevo fingerprint: %s | %s",
-            label,
-            new_fingerprint.navigator_platform,
-            new_fingerprint.user_agent[:50],
+            "[%s] Nueva identidad: %s | %s",
+            label, new_fp.navigator_platform, new_fp.user_agent[:50],
         )
-
-        # 3. Crear contexto limpio sin sesión persistida (proxy=None = conexión directa)
+        # session_domain="" → no cargar sesión contaminada
         return await self._create_context_and_page(
             browser=browser,
             automator=automator,
-            fingerprint=new_fingerprint,
-            session_domain="",  # Cadena vacía → no buscar sesión en disco
+            fingerprint=new_fp,
+            session_domain="",
         )
 
-    # ── Engine loop ──────────────────────────────────────────────────────────
+    # ── Engine loop ───────────────────────────────────────────────────────────
 
     async def _run_engine_keywords(
         self,
         engine_id: str,
         label: str,
+        platform: str,
         keywords: list[str],
         total_pages: int = 3,
     ) -> None:
         """
-        Procesa todas las keywords de un engine con un único browser y contexto.
+        Procesa todas las keywords de un engine con un único browser.
 
-        Ciclo de vida de recursos:
-          - Browser: creado una vez al inicio, cerrado en el ``finally``.
-          - Contexto + página: creados antes del loop de keywords.
-            Se recrean SOLO ante CAPTCHA no resoluble (nuevo fingerprint, contexto limpio).
-          - Página: se reutiliza entre keywords; se recrea ante error genérico.
-          - Fingerprint: uno por contexto, coherente durante toda la sesión.
+        Después de procesar cada keyword exitosamente, llama
+        ``kw_repo.mark_scraped(keyword)`` para actualizar ``last_scrap`` en DB.
 
         Args:
-            engine_id:   ID del CSE de Google.
-            label:       Etiqueta descriptiva para logs.
+            engine_id:   ID del Google CSE.
+            label:       Etiqueta descriptiva del engine.
+            platform:    Plataforma objetivo ("instagram", "facebook", …).
             keywords:    Lista de términos a buscar.
             total_pages: Páginas de resultados por keyword.
         """
-        # Instanciar el automator para este engine
+        # El PostRepository se pasa al automator para que persista sin re-conectar
         automator = GoogleCSEAutomator(
             cse_id=engine_id,
+            platform=platform,
+            post_repo=self._post_repo,
             config=self._cfg,
             browser_type=settings.BROWSER_TYPE,
-            db_manager=self._db_manager,
-            results_repo=self._results_repo,
-            sent_to_endpoint=settings.TO_ENDPOINT
         )
 
-        # Generar fingerprint inicial coherente para toda la sesión
         fingerprint: BrowserFingerprint = generate_fingerprint(settings.BROWSER_TYPE)
         logger.info(
             "[%s] Fingerprint inicial: %s | %s",
-            label,
-            fingerprint.navigator_platform,
-            fingerprint.user_agent[:50],
+            label, fingerprint.navigator_platform, fingerprint.user_agent[:50],
         )
 
         async with async_playwright() as playwright:
-            # ── Lanzar browser ───────────────────────────────────────────────
+            # Lanzar browser
             launch_opts = {"headless": settings.BROWSER_HEADLESS}
-            if settings.BROWSER_TYPE == "firefox":
-                browser: Browser = await playwright.firefox.launch(**launch_opts)
-            else:
-                browser: Browser = await playwright.chromium.launch(**launch_opts)
-
+            browser: Browser = (
+                await playwright.firefox.launch(**launch_opts)
+                if settings.BROWSER_TYPE == "firefox"
+                else await playwright.chromium.launch(**launch_opts)
+            )
             logger.info("[%s] Browser '%s' iniciado.", label, settings.BROWSER_TYPE)
 
-            # ── Contexto inicial ─────────────────────────────────────────────
             context, page = await self._create_context_and_page(
-                browser=browser,
-                automator=automator,
-                fingerprint=fingerprint,
+                browser=browser, automator=automator, fingerprint=fingerprint
             )
 
             try:
                 for idx, raw_kw in enumerate(keywords, 1):
                     if not self._running:
-                        logger.info("[%s] Stop signal recibido. Saliendo del loop.", label)
+                        logger.info("[%s] Stop signal. Saliendo del loop.", label)
                         break
 
                     kw = raw_kw.strip()
@@ -297,21 +265,20 @@ class ScraperOrchestrator:
                         continue
 
                     logger.info(
-                        "[%s] [%d/%d] Procesando keyword: '%s'",
-                        label, idx, len(keywords), kw,
+                        "[%s] [%d/%d] keyword='%s'", label, idx, len(keywords), kw
                     )
 
-                    # ── Ejecutar keyword ─────────────────────────────────────
                     try:
                         await automator.run_keyword(page, kw, total_pages)
+                        # ── Actualizar last_scrap en DB ───────────────────────
+                        if self._kw_repo:
+                            await self._kw_repo.mark_scraped(kw)
 
                     except CaptchaError as captcha_exc:
-                        # ── CAPTCHA no resoluble: rotar identidad ────────────
-                        # El auto-solver ya intentó resolverlo dentro de run_keyword.
-                        # Aquí solo llegamos si todos los intentos fallaron.
+                        # CAPTCHA no resoluble → rotar identidad
                         logger.warning(
                             "[%s] CAPTCHA no resoluble (signal=%s) en '%s'. "
-                            "Rotando identidad (nuevo fingerprint + contexto limpio)...",
+                            "Rotando identidad...",
                             label, captcha_exc.signal, kw,
                         )
                         GoogleCSEAutomator._play_alert_sound()
@@ -326,30 +293,28 @@ class ScraperOrchestrator:
                             fingerprint = generate_fingerprint(settings.BROWSER_TYPE)
                             await automator.setup_page(page, fingerprint)
 
-                            logger.info("[%s] Reintentando '%s' con nueva identidad...", label, kw)
+                            logger.info("[%s] Reintentando '%s'...", label, kw)
                             await automator.run_keyword(page, kw, total_pages)
+                            if self._kw_repo:
+                                await self._kw_repo.mark_scraped(kw)
 
                         except Exception as rotate_exc:
                             logger.error(
-                                "[%s] Fallo en reintento con nueva identidad para '%s': %s",
-                                label, kw, rotate_exc,
-                                exc_info=True,
+                                "[%s] Fallo en reintento con nueva identidad '%s': %s",
+                                label, kw, rotate_exc, exc_info=True,
                             )
 
                     except Exception as generic_exc:
-                        # ── Error genérico: recuperación suave ───────────────
-                        # Cierra solo la página y abre una nueva en el mismo
-                        # contexto para preservar cookies y localStorage.
+                        # Error genérico: recuperación suave (nueva página, mismo contexto)
                         logger.error(
-                            "[%s] Error inesperado en '%s': %s",
-                            label, kw, generic_exc,
-                            exc_info=True,
+                            "[%s] Error en '%s': %s",
+                            label, kw, generic_exc, exc_info=True,
                         )
                         try:
                             await page.close()
                             page = await context.new_page()
                             await automator.setup_page(page, fingerprint)
-                            logger.info("[%s] Página recreada. Continuando...", label)
+                            logger.info("[%s] Página recreada.", label)
                         except Exception as recovery_exc:
                             logger.error(
                                 "[%s] Recuperación fallida. Abortando engine: %s",
@@ -357,27 +322,25 @@ class ScraperOrchestrator:
                             )
                             break
 
-                    # ── Pausa entre keywords ─────────────────────────────────
-                    pause_seconds = self._cfg.jitter_wait(*self._cfg.between_keywords_range)
-                    logger.debug(
-                        "[%s] Pausa entre keywords: %.1fs", label, pause_seconds
-                    )
-
-                    await asyncio.sleep(pause_seconds)
+                    # Pausa entre keywords
+                    pause = self._cfg.jitter_wait(*self._cfg.between_keywords_range)
+                    logger.debug("[%s] Pausa entre keywords: %.1fs", label, pause)
+                    await asyncio.sleep(pause)
 
             finally:
-                # ── Guardar sesión antes de cerrar (solo si está habilitado) ──
-                if settings.SESSION_PERSIST:
+                # Guardar sesión si está habilitado
+                if settings.SESSION_PERSIST and self._session_store:
                     try:
                         saved = await self._session_store.save(context, "google.com")
                         if saved:
                             logger.info("[%s] Sesión guardada en disco.", label)
                     except Exception as save_exc:
-                        logger.warning("[%s] No se pudo guardar la sesión: %s", label, save_exc)
+                        logger.warning(
+                            "[%s] No se pudo guardar la sesión: %s", label, save_exc
+                        )
                 else:
-                    logger.debug("[%s] SESSION_PERSIST=false, sesión descartada.", label)
+                    logger.debug("[%s] SESSION_PERSIST=false. Sesión descartada.", label)
 
-                # ── Cerrar contexto y browser ────────────────────────────────
                 try:
                     await context.close()
                 except Exception:
@@ -385,16 +348,10 @@ class ScraperOrchestrator:
                 await browser.close()
                 logger.info("[%s] Browser cerrado.", label)
 
-    # ── Ciclo principal ──────────────────────────────────────────────────────
+    # ── Ciclo principal ───────────────────────────────────────────────────────
 
     async def _execute_cycle(self) -> None:
-        """
-        Ejecuta un ciclo completo: obtiene la config de engines y los procesa.
-
-        Cada engine se ejecuta secuencialmente. Para paralelismo se podría
-        usar ``asyncio.gather``, pero un solo browser concurrente es menos
-        detectable que múltiples browsers simultáneos desde la misma IP.
-        """
+        """Ejecuta un ciclo: carga engines desde DB y los procesa secuencialmente."""
         engines: list[dict] = await self._fetch_engines_config()
         if not engines:
             logger.warning("Sin motores configurados. Saltando ciclo.")
@@ -405,61 +362,55 @@ class ScraperOrchestrator:
                 break
 
             engine_id: str | None = engine.get("engine_id")
-            keywords: list[str] = engine.get("keywords", [])
-            label: str = engine.get("label", engine_id or "?")
+            keywords:  list[str]  = engine.get("keywords", [])
+            label:     str        = engine.get("label", engine_id or "?")
+            platform:  str        = engine.get("platform", "")
 
-            # Filtrar keywords vacías o inválidas
-            valid_kws = [k for k in keywords if isinstance(k, str) and k.strip()]
+            if not FILTER or label == FILTER:
+                valid_kws = [k for k in keywords if isinstance(k, str) and k.strip()]
 
-            if not engine_id or not valid_kws:
-                logger.warning(
-                    "Configuración inválida para engine '%s' (engine_id=%s, keywords=%d). "
-                    "Omitiendo.",
-                    label, engine_id, len(valid_kws),
+                if not engine_id or not valid_kws:
+                    logger.warning(
+                        "Config inválida engine='%s' (engine_id=%s, keywords=%d). Omitiendo.",
+                        label, engine_id, len(valid_kws),
+                    )
+                    continue
+
+                logger.info(
+                    "── Engine '%s' | %d keywords | platform='%s' | engine_id=%s",
+                    label, len(valid_kws), platform, engine_id,
                 )
-                continue
+                try:
+                    await self._run_engine_keywords(
+                        engine_id=engine_id,
+                        label=label,
+                        platform=platform,
+                        keywords=valid_kws,
+                        total_pages=settings.TOTAL_PAGES_PER_KEYWORD,
+                    )
+                except Exception as critical_exc:
+                    logger.error(
+                        "Fallo crítico en engine '%s': %s",
+                        label, critical_exc, exc_info=True,
+                    )
 
-            logger.info(
-                "── Engine '%s' | %d keywords | engine_id=%s",
-                label, len(valid_kws), engine_id,
-            )
-            try:
-                await self._run_engine_keywords(
-                    engine_id=engine_id,
-                    label=label,
-                    keywords=valid_kws,
-                    total_pages=settings.TOTAL_PAGES_PER_KEYWORD,
-                )
-            except Exception as critical_exc:
-                logger.error(
-                    "Fallo crítico en engine '%s': %s", label, critical_exc,
-                    exc_info=True,
-                )
-
-    # ── Inicio y parada ──────────────────────────────────────────────────────
-
-    async def _setup_database(self) -> None:
-        """Inicializa conexión a MongoDB y cachea el repositorio."""
-        self._db_manager = DatabaseManager(settings.MONGO_URL, settings.DB_NAME)
-        await self._db_manager.connect()
-        logger.info(f"MongoDB conectado: {settings.DB_NAME}")
-        self._results_repo = GoogleResultRepository(self._db_manager)
-        await self._results_repo.initialize()
+    # ── Inicio y parada ───────────────────────────────────────────────────────
 
     async def start(self) -> None:
         """
         Inicia el bucle principal del orquestador.
 
-        Registra handlers de señal para SIGINT/SIGTERM que permiten un
-        shutdown limpio: el ciclo actual termina antes de salir.
+        Abre la conexión SQLite al inicio y la cierra al terminar,
+        independientemente de cómo salga el proceso.
         """
         self._running = True
         loop = asyncio.get_running_loop()
         for sig in (signal.SIGINT, signal.SIGTERM):
             loop.add_signal_handler(sig, self.stop)
 
-        await self._setup_database()
-        logger.info("Orquestador iniciado. Ctrl+C para detener.")
+        await self._db_connect()
+
+        logger.info("Orquestador iniciado | OUTPUT_MODE=%s", settings.OUTPUT_MODE)
         try:
             while self._running:
                 logger.info("═" * 60)
@@ -470,24 +421,18 @@ class ScraperOrchestrator:
                     break
 
                 delay = settings.CYCLE_DELAY_SECONDS
-                logger.info("Ciclo completado. Próximo ciclo en %ds.", delay)
+                logger.info("Ciclo completado. Próximo en %ds.", delay)
                 await asyncio.sleep(delay)
 
         except asyncio.CancelledError:
             logger.info("Bucle cancelado por señal.")
         finally:
-            if self._db_manager:
-                await self._db_manager.disconnect()
-                logger.info("MongoDB desconectado.")
+            await self._db_disconnect()
 
         logger.info("Orquestador detenido.")
 
     def stop(self) -> None:
-        """
-        Señaliza al orquestador para que detenga el ciclo actual limpiamente.
-
-        El ciclo en curso termina su keyword actual antes de salir.
-        """
+        """Señaliza al orquestador para detenerse limpiamente tras el ciclo actual."""
         logger.info("Señal de parada recibida. Finalizando ciclo actual...")
         self._running = False
 
@@ -498,15 +443,13 @@ class ScraperOrchestrator:
 
 async def main() -> None:
     """Punto de entrada async del scraper."""
-    orchestrator = ScraperOrchestrator()
-    await orchestrator.start()
+    await ScraperOrchestrator().start()
 
 
 if __name__ == "__main__":
     import os
     from pathlib import Path
 
-    # ── Configurar logging ────────────────────────────────────────────────────
     log_dir = Path("logs")
     log_dir.mkdir(exist_ok=True)
 
@@ -519,16 +462,13 @@ if __name__ == "__main__":
             logging.FileHandler(log_dir / "scraper.log", encoding="utf-8"),
         ],
     )
-
-    # Reducir verbosidad de librerías externas
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("playwright").setLevel(logging.WARNING)
 
     logger.info("Python %s | PID %d", sys.version.split()[0], os.getpid())
-
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logger.info("Aplicación interrumpida manualmente.")
+        logger.info("Interrumpido manualmente.")
         sys.exit(0)

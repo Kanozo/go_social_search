@@ -77,16 +77,6 @@ class _Settings:
     correspondiente ANTES de importar este módulo.
     """
 
-    # ── Modo de salida ────────────────────────────────────────────────────────
-    # Controla dónde se persisten los resultados scrapeados.
-    # "mongodb" → inserta en MongoDB vía GoogleResultRepository
-    # "api"     → envía al endpoint HTTP externo vía httpx
-    OUTPUT_MODE: str = os.getenv("OUTPUT_MODE", "mongodb")
-
-    # ── MongoDB ───────────────────────────────────────────────────────────────
-    MONGO_URL: str = os.getenv("MONGO_URL", "mongodb://localhost:27017")
-    DB_NAME:   str = os.getenv("DB_NAME", "reaper_db")
-
     # ── API externa ───────────────────────────────────────────────────────────
     # ⚠️  NUNCA hardcodear tokens aquí — usa la variable de entorno DATA_STORE_TOKEN.
     DATA_STORE_TOKEN:      str  = os.getenv("DATA_STORE_TOKEN", "42|htoFv3uJ8ZIJMuWoSDQkmLOK0vnv5GSoGbQaKDWBf2cb6b41")
@@ -122,7 +112,7 @@ class _Settings:
     MAX_POOL_SIZE: int = os.getenv("MAX_POOL_SIZE", 10)
     MIN_POOL_SIZE: int = os.getenv("MIN_POOL_SIZE", 1)
 
-    TO_ENDPOINT: bool = _bool_env("TO_ENDPOINT", True)
+    OUTPUT_MODE: str = os.getenv("OUTPUT_MODE", "sqlite")
 
     def __repr__(self) -> str:
         """Representación segura: oculta el token del API."""
