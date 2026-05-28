@@ -19,7 +19,7 @@ from utils.captcha_guard import CaptchaError
 from utils.session_store import SessionStore
 
 logger = logging.getLogger(__name__)
-FILTER = None
+FILTER = "FB CR General Kano"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Keywords de fallback (solo se usan si la tabla keywords está vacía)
@@ -129,38 +129,23 @@ class ScraperOrchestrator:
         fingerprint: BrowserFingerprint,
         session_domain: str = "google.com",
     ) -> tuple[BrowserContext, Page]:
-        """
-        Crea un contexto con fingerprint, stealth, sesión persistida y warmup.
-
-        Args:
-            browser:        Browser activo.
-            automator:      Automator del engine (para setup_page y warmup).
-            fingerprint:    Fingerprint coherente para esta sesión.
-            session_domain: Dominio para buscar sesión en disco.
-                            Cadena vacía → contexto siempre limpio.
-
-        Returns:
-            Tupla ``(context, page)`` lista para scraping.
-        """
         context_options = fingerprint.build_context_options()
 
-        # Cargar sesión persistida si está habilitada
         if settings.SESSION_PERSIST and session_domain and self._session_store:
             saved_state = self._session_store.load_state_dict(session_domain)
             if saved_state:
                 context_options["storage_state"] = saved_state
 
         context: BrowserContext = await browser.new_context(**context_options)
+        
+        # ✅ Bloquear imágenes a nivel de contexto (ANTES de crear la página)
+        await automator.block_images_async(context, url_pattern="https://encrypted-tbn0.gstatic.com/images")
+        
         page: Page = await context.new_page()
-
         await automator.setup_page(page, fingerprint)
         await automator._warmup_session(page)
 
-        logger.info(
-            "Contexto listo: OS=%s | UA=%s…",
-            fingerprint.navigator_platform,
-            fingerprint.user_agent[:40],
-        )
+        logger.info("Contexto listo: OS=%s | UA=%s…", fingerprint.navigator_platform, fingerprint.user_agent[:40])
         return context, page
 
     async def _rotate_identity(
@@ -366,7 +351,7 @@ class ScraperOrchestrator:
             label:     str        = engine.get("label", engine_id or "?")
             platform:  str        = engine.get("platform", "")
 
-            if not FILTER or label == FILTER:
+            if FILTER and label == FILTER:
                 valid_kws = [k for k in keywords if isinstance(k, str) and k.strip()]
 
                 if not engine_id or not valid_kws:

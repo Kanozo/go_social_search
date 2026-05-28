@@ -2749,3 +2749,963 @@ playwright._impl._errors.TargetClosedError: Mouse.move: Target page, context or 
 2026-05-28 05:33:50 | INFO    | database.post_repo             | bulk_insert_new: 5 insertados, 0 omitidos (duplicados).
 2026-05-28 05:33:50 | INFO    | google_cse_automator           | SQLite | 5 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/iiifrentecompraventa/posts/'
 2026-05-28 05:34:00 | INFO    | __main__                       | [Maritza] [22/333] keyword='https://www.facebook.com/groups/ventascolonmatanzascuba/posts/'
+2026-05-28 05:37:23 | WARNING | google_cse_automator           | No se pudo activar filtro de fecha: Timeout 10000ms exceeded.
+2026-05-28 05:37:23 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/ventascolonmatanzascuba/posts/'
+2026-05-28 05:37:27 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:37:27 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/ventascolonmatanzascuba/posts/'
+2026-05-28 05:37:56 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/ventascolonmatanzascuba/posts/'
+2026-05-28 05:38:01 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:38:01 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/ventascolonmatanzascuba/posts/'
+2026-05-28 05:38:22 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/ventascolonmatanzascuba/posts/'
+2026-05-28 05:38:25 | INFO    | database.post_repo             | bulk_insert_new: 5 insertados, 0 omitidos (duplicados).
+2026-05-28 05:38:25 | INFO    | google_cse_automator           | SQLite | 5 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/ventascolonmatanzascuba/posts/'
+2026-05-28 05:38:35 | INFO    | __main__                       | [Maritza] [23/333] keyword='https://www.facebook.com/groups/aquisevende247holguin/posts/'
+2026-05-28 05:38:57 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/aquisevende247holguin/posts/'
+2026-05-28 05:39:00 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:39:00 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/aquisevende247holguin/posts/'
+2026-05-28 05:39:28 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/aquisevende247holguin/posts/'
+2026-05-28 05:39:30 | INFO    | database.post_repo             | bulk_insert_new: 2 insertados, 0 omitidos (duplicados).
+2026-05-28 05:39:30 | INFO    | google_cse_automator           | SQLite | 2 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/aquisevende247holguin/posts/'
+2026-05-28 05:40:07 | INFO    | __main__                       | [Maritza] [24/333] keyword='https://www.facebook.com/groups/aquisevende247pinardelrio/posts/'
+2026-05-28 05:40:27 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/aquisevende247pinardelrio/posts/'
+2026-05-28 05:40:30 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:40:30 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/aquisevende247pinardelrio/posts/'
+2026-05-28 05:40:54 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/aquisevende247pinardelrio/posts/'
+2026-05-28 05:40:58 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:40:58 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/aquisevende247pinardelrio/posts/'
+2026-05-28 05:41:16 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/aquisevende247pinardelrio/posts/'
+2026-05-28 05:41:17 | INFO    | database.post_repo             | bulk_insert_new: 5 insertados, 0 omitidos (duplicados).
+2026-05-28 05:41:17 | INFO    | google_cse_automator           | SQLite | 5 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/aquisevende247pinardelrio/posts/'
+2026-05-28 05:41:33 | INFO    | __main__                       | [Maritza] [25/333] keyword='https://www.facebook.com/groups/cabaiguancompraventa/posts/'
+2026-05-28 05:41:54 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/cabaiguancompraventa/posts/'
+2026-05-28 05:41:55 | INFO    | database.post_repo             | bulk_insert_new: 5 insertados, 0 omitidos (duplicados).
+2026-05-28 05:41:55 | INFO    | google_cse_automator           | SQLite | 5 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/cabaiguancompraventa/posts/'
+2026-05-28 05:42:25 | INFO    | __main__                       | [Maritza] [26/333] keyword='https://www.facebook.com/groups/495341203127878/posts/'
+2026-05-28 05:42:45 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/495341203127878/posts/'
+2026-05-28 05:42:47 | INFO    | database.post_repo             | bulk_insert_new: 4 insertados, 0 omitidos (duplicados).
+2026-05-28 05:42:47 | INFO    | google_cse_automator           | SQLite | 4 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/495341203127878/posts/'
+2026-05-28 05:43:12 | INFO    | __main__                       | [Maritza] [27/333] keyword='https://www.facebook.com/groups/mayaricompraventa/posts/'
+2026-05-28 05:43:34 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/mayaricompraventa/posts/'
+2026-05-28 05:43:38 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:43:38 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/mayaricompraventa/posts/'
+2026-05-28 05:44:09 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/mayaricompraventa/posts/'
+2026-05-28 05:44:12 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:44:12 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/mayaricompraventa/posts/'
+2026-05-28 05:44:42 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/mayaricompraventa/posts/'
+2026-05-28 05:44:45 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:44:45 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/mayaricompraventa/posts/'
+2026-05-28 05:44:59 | INFO    | __main__                       | [Maritza] [28/333] keyword='https://www.facebook.com/groups/deamorno/posts/'
+2026-05-28 05:45:17 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/deamorno/posts/'
+2026-05-28 05:45:21 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:45:21 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/deamorno/posts/'
+2026-05-28 05:45:48 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/deamorno/posts/'
+2026-05-28 05:45:52 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:45:52 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/deamorno/posts/'
+2026-05-28 05:46:12 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/deamorno/posts/'
+2026-05-28 05:46:17 | INFO    | database.post_repo             | bulk_insert_new: 7 insertados, 3 omitidos (duplicados).
+2026-05-28 05:46:17 | INFO    | google_cse_automator           | SQLite | 7 insertados, 3 omitidos | keyword='https://www.facebook.com/groups/deamorno/posts/'
+2026-05-28 05:46:29 | INFO    | __main__                       | [Maritza] [29/333] keyword='https://www.facebook.com/groups/2483575065250547/posts/'
+2026-05-28 05:46:47 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/2483575065250547/posts/'
+2026-05-28 05:46:50 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:46:50 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/2483575065250547/posts/'
+2026-05-28 05:47:11 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/2483575065250547/posts/'
+2026-05-28 05:47:16 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:47:16 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/2483575065250547/posts/'
+2026-05-28 05:47:38 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/2483575065250547/posts/'
+2026-05-28 05:47:41 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:47:41 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/2483575065250547/posts/'
+2026-05-28 05:47:51 | INFO    | __main__                       | [Maritza] [30/333] keyword='https://www.facebook.com/groups/3708727409223941/posts/'
+2026-05-28 05:48:11 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/3708727409223941/posts/'
+2026-05-28 05:48:15 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:48:15 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3708727409223941/posts/'
+2026-05-28 05:48:35 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/3708727409223941/posts/'
+2026-05-28 05:48:39 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:48:39 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3708727409223941/posts/'
+2026-05-28 05:49:12 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/3708727409223941/posts/'
+2026-05-28 05:49:16 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:49:16 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3708727409223941/posts/'
+2026-05-28 05:49:28 | INFO    | __main__                       | [Maritza] [31/333] keyword='https://www.facebook.com/groups/826795035530472/posts/'
+2026-05-28 05:49:47 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/826795035530472/posts/'
+2026-05-28 05:49:49 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:49:49 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/826795035530472/posts/'
+2026-05-28 05:50:07 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/826795035530472/posts/'
+2026-05-28 05:50:10 | INFO    | database.post_repo             | bulk_insert_new: 7 insertados, 0 omitidos (duplicados).
+2026-05-28 05:50:10 | INFO    | google_cse_automator           | SQLite | 7 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/826795035530472/posts/'
+2026-05-28 05:50:39 | INFO    | __main__                       | [Maritza] [32/333] keyword='https://www.facebook.com/groups/3077394432567772/posts/'
+2026-05-28 05:50:56 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/3077394432567772/posts/'
+2026-05-28 05:50:58 | INFO    | database.post_repo             | bulk_insert_new: 1 insertados, 0 omitidos (duplicados).
+2026-05-28 05:50:58 | INFO    | google_cse_automator           | SQLite | 1 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3077394432567772/posts/'
+2026-05-28 05:51:27 | INFO    | __main__                       | [Maritza] [33/333] keyword='https://www.facebook.com/groups/658428885794273/posts/'
+2026-05-28 05:51:49 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/658428885794273/posts/'
+2026-05-28 05:51:54 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:51:54 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/658428885794273/posts/'
+2026-05-28 05:52:19 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/658428885794273/posts/'
+2026-05-28 05:52:22 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:52:22 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/658428885794273/posts/'
+2026-05-28 05:52:57 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/658428885794273/posts/'
+2026-05-28 05:53:00 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 0 omitidos (duplicados).
+2026-05-28 05:53:00 | INFO    | google_cse_automator           | SQLite | 9 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/658428885794273/posts/'
+2026-05-28 05:53:09 | INFO    | __main__                       | [Maritza] [34/333] keyword='https://www.facebook.com/groups/cubamundo/posts/'
+2026-05-28 05:53:40 | WARNING | google_cse_automator           | No se pudo activar filtro de fecha: Timeout 10000ms exceeded.
+2026-05-28 05:53:40 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/cubamundo/posts/'
+2026-05-28 05:53:45 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 1 omitidos (duplicados).
+2026-05-28 05:53:45 | INFO    | google_cse_automator           | SQLite | 9 insertados, 1 omitidos | keyword='https://www.facebook.com/groups/cubamundo/posts/'
+2026-05-28 05:54:12 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/cubamundo/posts/'
+2026-05-28 05:54:16 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:54:16 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/cubamundo/posts/'
+2026-05-28 05:54:52 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/cubamundo/posts/'
+2026-05-28 05:54:56 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 05:54:56 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/cubamundo/posts/'
+2026-05-28 05:55:07 | INFO    | __main__                       | [Maritza] [35/333] keyword='https://www.facebook.com/groups/181067260213055/posts/'
+2026-05-28 05:55:41 | ERROR   | __main__                       | [Maritza] Error en 'https://www.facebook.com/groups/181067260213055/posts/': Timeout 15000ms exceeded.
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 272, in _run_engine_keywords
+    await automator.run_keyword(page, kw, total_pages)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 529, in run_keyword
+    await page.wait_for_load_state("networkidle", timeout=15_000)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/async_api/_generated.py", line 9141, in wait_for_load_state
+    await self._impl_obj.wait_for_load_state(state=state, timeout=timeout)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_page.py", line 572, in wait_for_load_state
+    return await self._main_frame.wait_for_load_state(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 273, in wait_for_load_state
+    return await self._wait_for_load_state_impl(state, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 301, in _wait_for_load_state_impl
+    await waiter.result()
+playwright._impl._errors.TimeoutError: Timeout 15000ms exceeded.
+2026-05-28 05:55:41 | INFO    | __main__                       | [Maritza] Página recreada.
+2026-05-28 05:55:56 | INFO    | __main__                       | [Maritza] [36/333] keyword='https://www.facebook.com/groups/cimarronasnegras/posts/'
+2026-05-28 05:56:28 | WARNING | google_cse_automator           | No se pudo activar filtro de fecha: Timeout 10000ms exceeded.
+2026-05-28 05:56:28 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/cimarronasnegras/posts/'
+2026-05-28 05:56:29 | INFO    | database.post_repo             | bulk_insert_new: 2 insertados, 0 omitidos (duplicados).
+2026-05-28 05:56:29 | INFO    | google_cse_automator           | SQLite | 2 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/cimarronasnegras/posts/'
+2026-05-28 05:56:55 | INFO    | __main__                       | [Maritza] [37/333] keyword='https://www.facebook.com/groups/222511967569768/posts/'
+2026-05-28 05:58:06 | INFO    | __main__                       | Python 3.13.5 | PID 216142
+2026-05-28 05:58:06 | INFO    | database.db_manager            | SQLite conectado: /home/kano/go_social_search/url_scraper.db (WAL mode)
+2026-05-28 05:58:06 | INFO    | __main__                       | SQLite listo | keywords=751 | posts=3462
+2026-05-28 05:58:06 | INFO    | __main__                       | Orquestador iniciado | OUTPUT_MODE=sqlite
+2026-05-28 05:58:06 | INFO    | __main__                       | ════════════════════════════════════════════════════════════
+2026-05-28 05:58:06 | INFO    | __main__                       | Iniciando nuevo ciclo de scraping...
+2026-05-28 05:58:06 | INFO    | __main__                       | [CONFIG] 6 grupos de engine cargados desde SQLite.
+2026-05-28 05:58:06 | INFO    | __main__                       | ── Engine 'FB CR General Kano' | 151 keywords | platform='facebook' | engine_id=294a079ba2d4267d5
+2026-05-28 05:58:06 | INFO    | __main__                       | [FB CR General Kano] Fingerprint inicial: MacIntel | Mozilla/5.0 (Macintosh; Intel Mac OS X 14.6; rv:12
+2026-05-28 05:58:06 | ERROR   | __main__                       | Fallo crítico en engine 'FB CR General Kano': BrowserType.launch: Executable doesn't exist at /home/kano/.cache/ms-playwright/firefox-1522/firefox/firefox
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 384, in _execute_cycle
+    await self._run_engine_keywords(
+    ...<5 lines>...
+    )
+  File "/home/kano/go_social_search/run_scraper.py", line 247, in _run_engine_keywords
+    await playwright.firefox.launch(**launch_opts)
+  File "/home/kano/go_social_search/.venv/lib/python3.13/site-packages/playwright/async_api/_generated.py", line 16307, in launch
+    await self._impl_obj.launch(
+    ...<17 lines>...
+    )
+  File "/home/kano/go_social_search/.venv/lib/python3.13/site-packages/playwright/_impl/_browser_type.py", line 98, in launch
+    await self._channel.send(
+        "launch", TimeoutSettings.launch_timeout, params
+    )
+  File "/home/kano/go_social_search/.venv/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/home/kano/go_social_search/.venv/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: BrowserType.launch: Executable doesn't exist at /home/kano/.cache/ms-playwright/firefox-1522/firefox/firefox
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     playwright install                                     ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+2026-05-28 05:58:06 | INFO    | __main__                       | Ciclo completado. Próximo en 3600s.
+2026-05-28 05:58:11 | INFO    | __main__                       | Python 3.13.5 | PID 216348
+2026-05-28 05:58:11 | INFO    | database.db_manager            | SQLite conectado: /home/kano/go_social_search/url_scraper.db (WAL mode)
+2026-05-28 05:58:11 | INFO    | __main__                       | SQLite listo | keywords=751 | posts=3462
+2026-05-28 05:58:11 | INFO    | __main__                       | Orquestador iniciado | OUTPUT_MODE=sqlite
+2026-05-28 05:58:11 | INFO    | __main__                       | ════════════════════════════════════════════════════════════
+2026-05-28 05:58:11 | INFO    | __main__                       | Iniciando nuevo ciclo de scraping...
+2026-05-28 05:58:11 | INFO    | __main__                       | [CONFIG] 6 grupos de engine cargados desde SQLite.
+2026-05-28 05:58:11 | INFO    | __main__                       | ── Engine 'FB CR General Kano' | 151 keywords | platform='facebook' | engine_id=294a079ba2d4267d5
+2026-05-28 05:58:11 | INFO    | __main__                       | [FB CR General Kano] Fingerprint inicial: MacIntel | Mozilla/5.0 (Macintosh; Intel Mac OS X 14.5; rv:12
+2026-05-28 05:58:12 | INFO    | __main__                       | [FB CR General Kano] Browser 'firefox' iniciado.
+2026-05-28 05:58:12 | INFO    | utils.session_store            | Session loaded: google_com.json (5 cookies)
+2026-05-28 05:58:30 | INFO    | __main__                       | Contexto listo: OS=MacIntel | UA=Mozilla/5.0 (Macintosh; Intel Mac OS X 1…
+2026-05-28 05:58:30 | INFO    | __main__                       | [FB CR General Kano] [1/151] keyword='https://www.facebook.com/PresidenciaDeCuba/posts/'
+2026-05-28 05:59:14 | ERROR   | __main__                       | [FB CR General Kano] Error en 'https://www.facebook.com/PresidenciaDeCuba/posts/': Timeout 15000ms exceeded.
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 272, in _run_engine_keywords
+    await automator.run_keyword(page, kw, total_pages)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 529, in run_keyword
+    await page.wait_for_load_state("networkidle", timeout=15_000)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/async_api/_generated.py", line 9141, in wait_for_load_state
+    await self._impl_obj.wait_for_load_state(state=state, timeout=timeout)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_page.py", line 572, in wait_for_load_state
+    return await self._main_frame.wait_for_load_state(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 273, in wait_for_load_state
+    return await self._wait_for_load_state_impl(state, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 301, in _wait_for_load_state_impl
+    await waiter.result()
+playwright._impl._errors.TimeoutError: Timeout 15000ms exceeded.
+2026-05-28 05:59:14 | INFO    | __main__                       | [FB CR General Kano] Página recreada.
+2026-05-28 05:59:24 | INFO    | __main__                       | [FB CR General Kano] [2/151] keyword='https://www.facebook.com/gerardo.hernandez.nordelo/posts/'
+2026-05-28 05:59:55 | ERROR   | __main__                       | [FB CR General Kano] Error en 'https://www.facebook.com/gerardo.hernandez.nordelo/posts/': Timeout 15000ms exceeded.
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 272, in _run_engine_keywords
+    await automator.run_keyword(page, kw, total_pages)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 529, in run_keyword
+    await page.wait_for_load_state("networkidle", timeout=15_000)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/async_api/_generated.py", line 9141, in wait_for_load_state
+    await self._impl_obj.wait_for_load_state(state=state, timeout=timeout)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_page.py", line 572, in wait_for_load_state
+    return await self._main_frame.wait_for_load_state(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 273, in wait_for_load_state
+    return await self._wait_for_load_state_impl(state, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 301, in _wait_for_load_state_impl
+    await waiter.result()
+playwright._impl._errors.TimeoutError: Timeout 15000ms exceeded.
+2026-05-28 05:59:55 | INFO    | __main__                       | [FB CR General Kano] Página recreada.
+2026-05-28 06:00:06 | INFO    | __main__                       | [FB CR General Kano] [3/151] keyword='https://www.facebook.com/Gerardodelos5heroes/posts/'
+2026-05-28 06:00:44 | WARNING | google_cse_automator           | No se pudo activar filtro de fecha: Timeout 10000ms exceeded.
+2026-05-28 06:00:44 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/Gerardodelos5heroes/posts/'
+2026-05-28 06:00:45 | WARNING | utils.captcha_guard            | [CAPTCHA] Selector '[id*='captcha']' visible | url=https://cse.google.com/cse?cx=294a079ba2d4267d5 | kw='https://www.facebook.com/Gerardodelos5heroes/posts/'
+2026-05-28 06:00:45 | WARNING | google_cse_automator           | CAPTCHA (signal=selector:[id*='captcha']). Intentando resolución automática...
+2026-05-28 06:00:45 | INFO    | utils.captcha_guard            | [CAPTCHA] Intentando resolver automáticamente: UNKNOWN | kw='https://www.facebook.com/Gerardodelos5heroes/posts/'
+2026-05-28 06:00:45 | WARNING | utils.captcha_guard            | [CAPTCHA] Tipo no identificado. No se puede resolver automáticamente.
+2026-05-28 06:00:45 | WARNING | __main__                       | [FB CR General Kano] CAPTCHA no resoluble (signal=selector:[id*='captcha']) en 'https://www.facebook.com/Gerardodelos5heroes/posts/'. Rotando identidad...
+2026-05-28 06:00:45 | INFO    | __main__                       | [FB CR General Kano] Nueva identidad: Win32 | Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0
+2026-05-28 06:01:00 | INFO    | __main__                       | Contexto listo: OS=Win32 | UA=Mozilla/5.0 (Windows NT 10.0; Win64; x64…
+2026-05-28 06:01:00 | INFO    | __main__                       | [FB CR General Kano] Reintentando 'https://www.facebook.com/Gerardodelos5heroes/posts/'...
+2026-05-28 06:01:14 | ERROR   | __main__                       | [FB CR General Kano] Fallo en reintento con nueva identidad 'https://www.facebook.com/Gerardodelos5heroes/posts/': Page.goto: NS_ERROR_ABORT
+Call log:
+  - navigating to "https://cse.google.com/cse?cx=294a079ba2d4267d5", waiting until "domcontentloaded"
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 297, in _run_engine_keywords
+    await automator.run_keyword(page, kw, total_pages)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 518, in run_keyword
+    await page.goto(self._search_url, wait_until="domcontentloaded", timeout=20_000)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/async_api/_generated.py", line 9045, in goto
+    await self._impl_obj.goto(
+        url=url, timeout=timeout, waitUntil=wait_until, referer=referer
+    )
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_page.py", line 552, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 153, in goto
+    await self._channel.send(
+        "goto", self._navigation_timeout, locals_to_params(locals())
+    )
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.Error: Page.goto: NS_ERROR_ABORT
+Call log:
+  - navigating to "https://cse.google.com/cse?cx=294a079ba2d4267d5", waiting until "domcontentloaded"
+
+2026-05-28 06:01:25 | INFO    | __main__                       | [FB CR General Kano] [4/151] keyword='https://www.facebook.com/PartidoComunistadeCubacontinuadordeMartiyFidel/posts/'
+2026-05-28 06:01:41 | ERROR   | __main__                       | [FB CR General Kano] Error en 'https://www.facebook.com/PartidoComunistadeCubacontinuadordeMartiyFidel/posts/': Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://cse.google.com/cse?cx=294a079ba2d4267d5", waiting until "domcontentloaded"
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 272, in _run_engine_keywords
+    await automator.run_keyword(page, kw, total_pages)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 518, in run_keyword
+    await page.goto(self._search_url, wait_until="domcontentloaded", timeout=20_000)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/async_api/_generated.py", line 9045, in goto
+    await self._impl_obj.goto(
+        url=url, timeout=timeout, waitUntil=wait_until, referer=referer
+    )
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_page.py", line 552, in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 153, in goto
+    await self._channel.send(
+        "goto", self._navigation_timeout, locals_to_params(locals())
+    )
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TargetClosedError: Page.goto: Target page, context or browser has been closed
+Call log:
+  - navigating to "https://cse.google.com/cse?cx=294a079ba2d4267d5", waiting until "domcontentloaded"
+
+2026-05-28 06:01:42 | INFO    | __main__                       | [FB CR General Kano] Página recreada.
+2026-05-28 06:01:52 | INFO    | __main__                       | [FB CR General Kano] [5/151] keyword='https://www.facebook.com/razonesdecuba.cu/posts/'
+2026-05-28 06:03:05 | ERROR   | __main__                       | [FB CR General Kano] Error en 'https://www.facebook.com/razonesdecuba.cu/posts/': Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("input.gsc-input")
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 272, in _run_engine_keywords
+    await automator.run_keyword(page, kw, total_pages)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 524, in run_keyword
+    await self._arc_move_and_click(page, search_box)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 213, in _arc_move_and_click
+    await locator.click()
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/async_api/_generated.py", line 15603, in click
+    await self._impl_obj.click(
+    ...<10 lines>...
+    )
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_locator.py", line 162, in click
+    return await self._frame._click(self._selector, strict=True, **params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 566, in _click
+    await self._channel.send("click", self._timeout, locals_to_params(locals()))
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("input.gsc-input")
+
+2026-05-28 06:03:05 | INFO    | __main__                       | [FB CR General Kano] Página recreada.
+2026-05-28 06:03:15 | INFO    | __main__                       | [FB CR General Kano] [6/151] keyword='https://www.facebook.com/GladysArtemisa/posts/'
+2026-05-28 06:04:00 | ERROR   | __main__                       | [FB CR General Kano] Error en 'https://www.facebook.com/GladysArtemisa/posts/': Timeout 15000ms exceeded.
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 272, in _run_engine_keywords
+    await automator.run_keyword(page, kw, total_pages)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 529, in run_keyword
+    # 1. Navegar al motor CSE
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/async_api/_generated.py", line 9141, in wait_for_load_state
+    await self._impl_obj.wait_for_load_state(state=state, timeout=timeout)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_page.py", line 572, in wait_for_load_state
+    return await self._main_frame.wait_for_load_state(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 273, in wait_for_load_state
+    return await self._wait_for_load_state_impl(state, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 301, in _wait_for_load_state_impl
+    await waiter.result()
+playwright._impl._errors.TimeoutError: Timeout 15000ms exceeded.
+2026-05-28 06:04:00 | INFO    | __main__                       | [FB CR General Kano] Página recreada.
+2026-05-28 06:04:10 | INFO    | __main__                       | [FB CR General Kano] [7/151] keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:04:47 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:04:50 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 06:04:50 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:05:18 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:05:21 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:05:21 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:05:45 | INFO    | __main__                       | Python 3.13.5 | PID 222384
+2026-05-28 06:05:45 | INFO    | database.db_manager            | SQLite conectado: /home/kano/go_social_search/url_scraper.db (WAL mode)
+2026-05-28 06:05:45 | INFO    | __main__                       | SQLite listo | keywords=751 | posts=3480
+2026-05-28 06:05:45 | INFO    | __main__                       | Orquestador iniciado | OUTPUT_MODE=sqlite
+2026-05-28 06:05:45 | INFO    | __main__                       | ════════════════════════════════════════════════════════════
+2026-05-28 06:05:45 | INFO    | __main__                       | Iniciando nuevo ciclo de scraping...
+2026-05-28 06:05:45 | INFO    | __main__                       | [CONFIG] 6 grupos de engine cargados desde SQLite.
+2026-05-28 06:05:45 | INFO    | __main__                       | ── Engine 'FB CR General Kano' | 151 keywords | platform='facebook' | engine_id=294a079ba2d4267d5
+2026-05-28 06:05:45 | INFO    | __main__                       | [FB CR General Kano] Fingerprint inicial: Win32 | Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0
+2026-05-28 06:05:46 | INFO    | __main__                       | [FB CR General Kano] Browser 'firefox' iniciado.
+2026-05-28 06:05:46 | INFO    | utils.session_store            | Session loaded: google_com.json (5 cookies)
+2026-05-28 06:05:48 | ERROR   | __main__                       | Fallo crítico en engine 'FB CR General Kano': GoogleCSEAutomator.block_images_async() got multiple values for argument 'url_pattern'
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 384, in _execute_cycle
+    await self._run_engine_keywords(
+    ...<5 lines>...
+    )
+  File "/home/kano/go_social_search/run_scraper.py", line 253, in _run_engine_keywords
+    context, page = await self._create_context_and_page(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        browser=browser, automator=automator, fingerprint=fingerprint
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/kano/go_social_search/run_scraper.py", line 155, in _create_context_and_page
+    await automator.block_images_async(page, url_pattern="facebook.com")
+          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: GoogleCSEAutomator.block_images_async() got multiple values for argument 'url_pattern'
+2026-05-28 06:05:48 | INFO    | __main__                       | Ciclo completado. Próximo en 3600s.
+2026-05-28 06:09:13 | INFO    | __main__                       | Python 3.13.5 | PID 223864
+2026-05-28 06:09:13 | INFO    | database.db_manager            | SQLite conectado: /home/kano/go_social_search/url_scraper.db (WAL mode)
+2026-05-28 06:09:13 | INFO    | __main__                       | SQLite listo | keywords=751 | posts=3480
+2026-05-28 06:09:13 | INFO    | __main__                       | Orquestador iniciado | OUTPUT_MODE=sqlite
+2026-05-28 06:09:13 | INFO    | __main__                       | ════════════════════════════════════════════════════════════
+2026-05-28 06:09:13 | INFO    | __main__                       | Iniciando nuevo ciclo de scraping...
+2026-05-28 06:09:13 | INFO    | __main__                       | [CONFIG] 6 grupos de engine cargados desde SQLite.
+2026-05-28 06:09:13 | INFO    | __main__                       | ── Engine 'FB CR General Kano' | 151 keywords | platform='facebook' | engine_id=294a079ba2d4267d5
+2026-05-28 06:09:13 | INFO    | __main__                       | [FB CR General Kano] Fingerprint inicial: Win32 | Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0
+2026-05-28 06:09:14 | INFO    | __main__                       | [FB CR General Kano] Browser 'firefox' iniciado.
+2026-05-28 06:09:14 | INFO    | utils.session_store            | Session loaded: google_com.json (5 cookies)
+2026-05-28 06:09:16 | ERROR   | __main__                       | Fallo crítico en engine 'FB CR General Kano': 'GoogleCSEAutomator' object has no attribute 'route'
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 384, in _execute_cycle
+    await self._run_engine_keywords(
+    ...<5 lines>...
+    )
+  File "/home/kano/go_social_search/run_scraper.py", line 253, in _run_engine_keywords
+    context, page = await self._create_context_and_page(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        browser=browser, automator=automator, fingerprint=fingerprint
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/kano/go_social_search/run_scraper.py", line 155, in _create_context_and_page
+    await automator.block_images_async(page)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 287, in block_images_async
+    await page.route("**/*", handle_route)
+          ^^^^^^^^^^
+AttributeError: 'GoogleCSEAutomator' object has no attribute 'route'
+2026-05-28 06:09:16 | INFO    | __main__                       | Ciclo completado. Próximo en 3600s.
+2026-05-28 06:09:22 | INFO    | __main__                       | Señal de parada recibida. Finalizando ciclo actual...
+2026-05-28 06:13:55 | INFO    | __main__                       | Python 3.13.5 | PID 225248
+2026-05-28 06:13:55 | INFO    | database.db_manager            | SQLite conectado: /home/kano/go_social_search/url_scraper.db (WAL mode)
+2026-05-28 06:13:55 | INFO    | __main__                       | SQLite listo | keywords=751 | posts=3480
+2026-05-28 06:13:55 | INFO    | __main__                       | Orquestador iniciado | OUTPUT_MODE=sqlite
+2026-05-28 06:13:55 | INFO    | __main__                       | ════════════════════════════════════════════════════════════
+2026-05-28 06:13:55 | INFO    | __main__                       | Iniciando nuevo ciclo de scraping...
+2026-05-28 06:13:55 | INFO    | __main__                       | [CONFIG] 6 grupos de engine cargados desde SQLite.
+2026-05-28 06:13:55 | INFO    | __main__                       | ── Engine 'FB CR General Kano' | 151 keywords | platform='facebook' | engine_id=294a079ba2d4267d5
+2026-05-28 06:13:55 | INFO    | __main__                       | [FB CR General Kano] Fingerprint inicial: MacIntel | Mozilla/5.0 (Macintosh; Intel Mac OS X 14.6; rv:12
+2026-05-28 06:13:56 | INFO    | __main__                       | [FB CR General Kano] Browser 'firefox' iniciado.
+2026-05-28 06:13:56 | INFO    | utils.session_store            | Session loaded: google_com.json (5 cookies)
+2026-05-28 06:13:58 | ERROR   | __main__                       | Fallo crítico en engine 'FB CR General Kano': 'GoogleCSEAutomator' object has no attribute 'block_images_on_context'
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 369, in _execute_cycle
+    await self._run_engine_keywords(
+    ...<5 lines>...
+    )
+  File "/home/kano/go_social_search/run_scraper.py", line 238, in _run_engine_keywords
+    context, page = await self._create_context_and_page(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        browser=browser, automator=automator, fingerprint=fingerprint
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/kano/go_social_search/run_scraper.py", line 142, in _create_context_and_page
+    await automator.block_images_on_context(context, url_pattern=None, log_blocked=settings.DEBUG)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'GoogleCSEAutomator' object has no attribute 'block_images_on_context'
+2026-05-28 06:13:58 | INFO    | __main__                       | Ciclo completado. Próximo en 3600s.
+2026-05-28 06:14:31 | INFO    | __main__                       | Python 3.13.5 | PID 225950
+2026-05-28 06:14:31 | INFO    | database.db_manager            | SQLite conectado: /home/kano/go_social_search/url_scraper.db (WAL mode)
+2026-05-28 06:14:31 | INFO    | __main__                       | SQLite listo | keywords=751 | posts=3480
+2026-05-28 06:14:31 | INFO    | __main__                       | Orquestador iniciado | OUTPUT_MODE=sqlite
+2026-05-28 06:14:31 | INFO    | __main__                       | ════════════════════════════════════════════════════════════
+2026-05-28 06:14:31 | INFO    | __main__                       | Iniciando nuevo ciclo de scraping...
+2026-05-28 06:14:31 | INFO    | __main__                       | [CONFIG] 6 grupos de engine cargados desde SQLite.
+2026-05-28 06:14:31 | INFO    | __main__                       | ── Engine 'FB CR General Kano' | 151 keywords | platform='facebook' | engine_id=294a079ba2d4267d5
+2026-05-28 06:14:31 | INFO    | __main__                       | [FB CR General Kano] Fingerprint inicial: Win32 | Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0
+2026-05-28 06:14:32 | INFO    | __main__                       | [FB CR General Kano] Browser 'firefox' iniciado.
+2026-05-28 06:14:32 | INFO    | utils.session_store            | Session loaded: google_com.json (5 cookies)
+2026-05-28 06:14:34 | ERROR   | __main__                       | Fallo crítico en engine 'FB CR General Kano': '_Settings' object has no attribute 'DEBUG'
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 369, in _execute_cycle
+    await self._run_engine_keywords(
+    ...<5 lines>...
+    )
+  File "/home/kano/go_social_search/run_scraper.py", line 238, in _run_engine_keywords
+    context, page = await self._create_context_and_page(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        browser=browser, automator=automator, fingerprint=fingerprint
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/kano/go_social_search/run_scraper.py", line 142, in _create_context_and_page
+    await automator.block_images_async(context, url_pattern=None, log_blocked=settings.DEBUG)
+                                                                              ^^^^^^^^^^^^^^
+AttributeError: '_Settings' object has no attribute 'DEBUG'
+2026-05-28 06:14:34 | INFO    | __main__                       | Ciclo completado. Próximo en 3600s.
+2026-05-28 06:14:50 | INFO    | __main__                       | Python 3.13.5 | PID 226545
+2026-05-28 06:14:50 | INFO    | database.db_manager            | SQLite conectado: /home/kano/go_social_search/url_scraper.db (WAL mode)
+2026-05-28 06:14:50 | INFO    | __main__                       | SQLite listo | keywords=751 | posts=3480
+2026-05-28 06:14:50 | INFO    | __main__                       | Orquestador iniciado | OUTPUT_MODE=sqlite
+2026-05-28 06:14:50 | INFO    | __main__                       | ════════════════════════════════════════════════════════════
+2026-05-28 06:14:50 | INFO    | __main__                       | Iniciando nuevo ciclo de scraping...
+2026-05-28 06:14:50 | INFO    | __main__                       | [CONFIG] 6 grupos de engine cargados desde SQLite.
+2026-05-28 06:14:50 | INFO    | __main__                       | ── Engine 'FB CR General Kano' | 151 keywords | platform='facebook' | engine_id=294a079ba2d4267d5
+2026-05-28 06:14:50 | INFO    | __main__                       | [FB CR General Kano] Fingerprint inicial: Win32 | Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0
+2026-05-28 06:14:51 | INFO    | __main__                       | [FB CR General Kano] Browser 'firefox' iniciado.
+2026-05-28 06:14:51 | INFO    | utils.session_store            | Session loaded: google_com.json (5 cookies)
+2026-05-28 06:14:54 | WARNING | utils.captcha_guard            | [HTTP] Status 403 received | url=https://www.google.com/complete/s?q&cp=0&client=gws-wiz&xssi=t&gs_pcrt=2&hl=en-CU&authuser=0&psi=nBU
+2026-05-28 06:15:00 | INFO    | __main__                       | Contexto listo: OS=Win32 | UA=Mozilla/5.0 (Windows NT 10.0; Win64; x64…
+2026-05-28 06:15:00 | INFO    | __main__                       | [FB CR General Kano] [1/151] keyword='https://www.facebook.com/PresidenciaDeCuba/posts/'
+2026-05-28 06:17:24 | INFO    | __main__                       | Python 3.13.5 | PID 228094
+2026-05-28 06:17:24 | INFO    | database.db_manager            | SQLite conectado: /home/kano/go_social_search/url_scraper.db (WAL mode)
+2026-05-28 06:17:24 | INFO    | __main__                       | SQLite listo | keywords=751 | posts=3480
+2026-05-28 06:17:24 | INFO    | __main__                       | Orquestador iniciado | OUTPUT_MODE=sqlite
+2026-05-28 06:17:24 | INFO    | __main__                       | ════════════════════════════════════════════════════════════
+2026-05-28 06:17:24 | INFO    | __main__                       | Iniciando nuevo ciclo de scraping...
+2026-05-28 06:17:24 | INFO    | __main__                       | [CONFIG] 6 grupos de engine cargados desde SQLite.
+2026-05-28 06:17:24 | INFO    | __main__                       | ── Engine 'FB CR General Kano' | 151 keywords | platform='facebook' | engine_id=294a079ba2d4267d5
+2026-05-28 06:17:24 | INFO    | __main__                       | [FB CR General Kano] Fingerprint inicial: Win32 | Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0
+2026-05-28 06:17:25 | INFO    | __main__                       | [FB CR General Kano] Browser 'firefox' iniciado.
+2026-05-28 06:17:25 | INFO    | utils.session_store            | Session loaded: google_com.json (5 cookies)
+2026-05-28 06:17:29 | WARNING | utils.captcha_guard            | [HTTP] Status 403 received | url=https://www.google.com/complete/s?q&cp=0&client=gws-wiz&xssi=t&gs_pcrt=2&hl=es-419&authuser=0&psi=Nx
+2026-05-28 06:17:38 | INFO    | __main__                       | Contexto listo: OS=Win32 | UA=Mozilla/5.0 (Windows NT 10.0; Win64; x64…
+2026-05-28 06:17:38 | INFO    | __main__                       | [FB CR General Kano] [1/151] keyword='https://www.facebook.com/PresidenciaDeCuba/posts/'
+2026-05-28 06:17:58 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/PresidenciaDeCuba/posts/'
+2026-05-28 06:18:03 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 06:18:03 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/PresidenciaDeCuba/posts/'
+2026-05-28 06:18:28 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/PresidenciaDeCuba/posts/'
+2026-05-28 06:18:32 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 1 omitidos (duplicados).
+2026-05-28 06:18:32 | INFO    | google_cse_automator           | SQLite | 9 insertados, 1 omitidos | keyword='https://www.facebook.com/PresidenciaDeCuba/posts/'
+2026-05-28 06:19:04 | ERROR   | __main__                       | [FB CR General Kano] Error en 'https://www.facebook.com/PresidenciaDeCuba/posts/': Locator.wait_for: Timeout 12000ms exceeded.
+Call log:
+  - waiting for locator(".gsc-cursor-current-page").filter(has_text="3") to be visible
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 257, in _run_engine_keywords
+    await automator.run_keyword(page, kw, total_pages)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 629, in run_keyword
+    await page.locator(".gsc-cursor-current-page").filter(
+        has_text=str(current_p + 1)
+    ).wait_for(state="visible", timeout=12_000)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/async_api/_generated.py", line 17993, in wait_for
+    await self._impl_obj.wait_for(timeout=timeout, state=state)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_locator.py", line 710, in wait_for
+    await self._frame.wait_for_selector(
+        self._selector, strict=True, timeout=timeout, state=state
+    )
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 369, in wait_for_selector
+    await self._channel.send(
+        "waitForSelector", self._timeout, locals_to_params(locals())
+    )
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 12000ms exceeded.
+Call log:
+  - waiting for locator(".gsc-cursor-current-page").filter(has_text="3") to be visible
+
+2026-05-28 06:19:04 | INFO    | __main__                       | [FB CR General Kano] Página recreada.
+2026-05-28 06:19:16 | INFO    | __main__                       | [FB CR General Kano] [2/151] keyword='https://www.facebook.com/gerardo.hernandez.nordelo/posts/'
+2026-05-28 06:20:02 | WARNING | google_cse_automator           | No se pudo activar filtro de fecha: Timeout 10000ms exceeded.
+2026-05-28 06:20:02 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/gerardo.hernandez.nordelo/posts/'
+2026-05-28 06:20:05 | INFO    | database.post_repo             | bulk_insert_new: 2 insertados, 8 omitidos (duplicados).
+2026-05-28 06:20:05 | INFO    | google_cse_automator           | SQLite | 2 insertados, 8 omitidos | keyword='https://www.facebook.com/gerardo.hernandez.nordelo/posts/'
+2026-05-28 06:20:31 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/gerardo.hernandez.nordelo/posts/'
+2026-05-28 06:20:34 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 06:20:34 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/gerardo.hernandez.nordelo/posts/'
+2026-05-28 06:21:03 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/gerardo.hernandez.nordelo/posts/'
+2026-05-28 06:21:05 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 06:21:05 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/gerardo.hernandez.nordelo/posts/'
+2026-05-28 06:21:19 | INFO    | __main__                       | [FB CR General Kano] [3/151] keyword='https://www.facebook.com/Gerardodelos5heroes/posts/'
+2026-05-28 06:21:37 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/Gerardodelos5heroes/posts/'
+2026-05-28 06:21:40 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:21:40 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/Gerardodelos5heroes/posts/'
+2026-05-28 06:22:06 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/Gerardodelos5heroes/posts/'
+2026-05-28 06:22:10 | INFO    | database.post_repo             | bulk_insert_new: 7 insertados, 3 omitidos (duplicados).
+2026-05-28 06:22:10 | INFO    | google_cse_automator           | SQLite | 7 insertados, 3 omitidos | keyword='https://www.facebook.com/Gerardodelos5heroes/posts/'
+2026-05-28 06:22:38 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/Gerardodelos5heroes/posts/'
+2026-05-28 06:22:41 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:22:41 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/Gerardodelos5heroes/posts/'
+2026-05-28 06:22:50 | INFO    | __main__                       | [FB CR General Kano] [4/151] keyword='https://www.facebook.com/PartidoComunistadeCubacontinuadordeMartiyFidel/posts/'
+2026-05-28 06:23:12 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/PartidoComunistadeCubacontinuadordeMartiyFidel/posts/'
+2026-05-28 06:23:17 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:23:17 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/PartidoComunistadeCubacontinuadordeMartiyFidel/posts/'
+2026-05-28 06:23:54 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/PartidoComunistadeCubacontinuadordeMartiyFidel/posts/'
+2026-05-28 06:23:58 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:23:58 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/PartidoComunistadeCubacontinuadordeMartiyFidel/posts/'
+2026-05-28 06:24:15 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/PartidoComunistadeCubacontinuadordeMartiyFidel/posts/'
+2026-05-28 06:24:18 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 06:24:18 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/PartidoComunistadeCubacontinuadordeMartiyFidel/posts/'
+2026-05-28 06:24:28 | INFO    | __main__                       | [FB CR General Kano] [5/151] keyword='https://www.facebook.com/razonesdecuba.cu/posts/'
+2026-05-28 06:24:46 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/razonesdecuba.cu/posts/'
+2026-05-28 06:24:48 | INFO    | database.post_repo             | bulk_insert_new: 4 insertados, 6 omitidos (duplicados).
+2026-05-28 06:24:48 | INFO    | google_cse_automator           | SQLite | 4 insertados, 6 omitidos | keyword='https://www.facebook.com/razonesdecuba.cu/posts/'
+2026-05-28 06:25:11 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/razonesdecuba.cu/posts/'
+2026-05-28 06:25:14 | INFO    | database.post_repo             | bulk_insert_new: 4 insertados, 6 omitidos (duplicados).
+2026-05-28 06:25:14 | INFO    | google_cse_automator           | SQLite | 4 insertados, 6 omitidos | keyword='https://www.facebook.com/razonesdecuba.cu/posts/'
+2026-05-28 06:25:39 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/razonesdecuba.cu/posts/'
+2026-05-28 06:25:43 | INFO    | database.post_repo             | bulk_insert_new: 3 insertados, 7 omitidos (duplicados).
+2026-05-28 06:25:43 | INFO    | google_cse_automator           | SQLite | 3 insertados, 7 omitidos | keyword='https://www.facebook.com/razonesdecuba.cu/posts/'
+2026-05-28 06:25:57 | INFO    | __main__                       | [FB CR General Kano] [6/151] keyword='https://www.facebook.com/GladysArtemisa/posts/'
+2026-05-28 06:26:14 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/GladysArtemisa/posts/'
+2026-05-28 06:26:17 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 1 omitidos (duplicados).
+2026-05-28 06:26:17 | INFO    | google_cse_automator           | SQLite | 9 insertados, 1 omitidos | keyword='https://www.facebook.com/GladysArtemisa/posts/'
+2026-05-28 06:26:43 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/GladysArtemisa/posts/'
+2026-05-28 06:26:46 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:26:46 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/GladysArtemisa/posts/'
+2026-05-28 06:27:07 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/GladysArtemisa/posts/'
+2026-05-28 06:27:10 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:27:10 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/GladysArtemisa/posts/'
+2026-05-28 06:27:21 | INFO    | __main__                       | [FB CR General Kano] [7/151] keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:27:40 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:27:45 | INFO    | database.post_repo             | bulk_insert_new: 0 insertados, 10 omitidos (duplicados).
+2026-05-28 06:27:45 | INFO    | google_cse_automator           | SQLite | 0 insertados, 10 omitidos | keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:28:05 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:28:10 | INFO    | database.post_repo             | bulk_insert_new: 0 insertados, 10 omitidos (duplicados).
+2026-05-28 06:28:10 | INFO    | google_cse_automator           | SQLite | 0 insertados, 10 omitidos | keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:28:32 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:28:35 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:28:35 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/jorgeluis.brochelorenzo/posts/'
+2026-05-28 06:28:48 | INFO    | __main__                       | [FB CR General Kano] [8/151] keyword='https://www.facebook.com/RadioBayamo/posts/'
+2026-05-28 06:29:05 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/RadioBayamo/posts/'
+2026-05-28 06:29:09 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 06:29:09 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/RadioBayamo/posts/'
+2026-05-28 06:29:37 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/RadioBayamo/posts/'
+2026-05-28 06:29:41 | INFO    | database.post_repo             | bulk_insert_new: 7 insertados, 3 omitidos (duplicados).
+2026-05-28 06:29:41 | INFO    | google_cse_automator           | SQLite | 7 insertados, 3 omitidos | keyword='https://www.facebook.com/RadioBayamo/posts/'
+2026-05-28 06:30:07 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/RadioBayamo/posts/'
+2026-05-28 06:30:11 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 06:30:11 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/RadioBayamo/posts/'
+2026-05-28 06:30:25 | INFO    | __main__                       | [FB CR General Kano] [9/151] keyword='https://www.facebook.com/groups/434004943672696/posts/'
+2026-05-28 06:30:41 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/434004943672696/posts/'
+2026-05-28 06:30:45 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 1 omitidos (duplicados).
+2026-05-28 06:30:45 | INFO    | google_cse_automator           | SQLite | 9 insertados, 1 omitidos | keyword='https://www.facebook.com/groups/434004943672696/posts/'
+2026-05-28 06:31:09 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/434004943672696/posts/'
+2026-05-28 06:31:13 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:31:13 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/434004943672696/posts/'
+2026-05-28 06:31:36 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/434004943672696/posts/'
+2026-05-28 06:31:39 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:31:39 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/434004943672696/posts/'
+2026-05-28 06:31:53 | INFO    | __main__                       | [FB CR General Kano] [10/151] keyword='https://www.facebook.com/groups/anuncioscaibarien/posts/'
+2026-05-28 06:32:11 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/anuncioscaibarien/posts/'
+2026-05-28 06:32:14 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:32:14 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/anuncioscaibarien/posts/'
+2026-05-28 06:32:33 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/anuncioscaibarien/posts/'
+2026-05-28 06:32:37 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:32:37 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/anuncioscaibarien/posts/'
+2026-05-28 06:33:00 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/anuncioscaibarien/posts/'
+2026-05-28 06:33:03 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 1 omitidos (duplicados).
+2026-05-28 06:33:03 | INFO    | google_cse_automator           | SQLite | 9 insertados, 1 omitidos | keyword='https://www.facebook.com/groups/anuncioscaibarien/posts/'
+2026-05-28 06:33:18 | INFO    | __main__                       | [FB CR General Kano] [11/151] keyword='https://www.facebook.com/groups/67706680225/posts/'
+2026-05-28 06:33:36 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/67706680225/posts/'
+2026-05-28 06:33:38 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:33:38 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/67706680225/posts/'
+2026-05-28 06:34:04 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/67706680225/posts/'
+2026-05-28 06:34:08 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 06:34:08 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/groups/67706680225/posts/'
+2026-05-28 06:34:38 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/67706680225/posts/'
+2026-05-28 06:34:42 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:34:42 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/67706680225/posts/'
+2026-05-28 06:34:57 | INFO    | __main__                       | [FB CR General Kano] [12/151] keyword='https://www.facebook.com/profile.php?id=61575946707396/posts/'
+2026-05-28 06:35:17 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/profile.php?id=61575946707396/posts/'
+2026-05-28 06:35:19 | INFO    | database.post_repo             | bulk_insert_new: 3 insertados, 0 omitidos (duplicados).
+2026-05-28 06:35:19 | INFO    | google_cse_automator           | SQLite | 3 insertados, 0 omitidos | keyword='https://www.facebook.com/profile.php?id=61575946707396/posts/'
+2026-05-28 06:35:46 | INFO    | __main__                       | [FB CR General Kano] [13/151] keyword='https://www.facebook.com/profile.php?id=61559784217848/posts/'
+2026-05-28 06:36:05 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/profile.php?id=61559784217848/posts/'
+2026-05-28 06:36:08 | INFO    | database.post_repo             | bulk_insert_new: 6 insertados, 0 omitidos (duplicados).
+2026-05-28 06:36:08 | INFO    | google_cse_automator           | SQLite | 6 insertados, 0 omitidos | keyword='https://www.facebook.com/profile.php?id=61559784217848/posts/'
+2026-05-28 06:36:35 | INFO    | __main__                       | [FB CR General Kano] [14/151] keyword='https://www.facebook.com/groups/3170984329754811/posts/'
+2026-05-28 06:36:54 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/3170984329754811/posts/'
+2026-05-28 06:36:55 | WARNING | utils.captcha_guard            | [CAPTCHA] Selector 'iframe[src*='recaptcha']' visible | url=https://cse.google.com/cse?cx=294a079ba2d4267d5 | kw='https://www.facebook.com/groups/3170984329754811/posts/'
+2026-05-28 06:36:55 | WARNING | google_cse_automator           | CAPTCHA (signal=selector:iframe[src*='recaptcha']). Intentando resolución automática...
+2026-05-28 06:36:55 | INFO    | utils.captcha_guard            | [CAPTCHA] Intentando resolver automáticamente: RECAPTCHA_V2 | kw='https://www.facebook.com/groups/3170984329754811/posts/'
+2026-05-28 06:36:55 | INFO    | utils.captcha_guard            | [CAPTCHA] Intentando resolver reCAPTCHA v2 (checkbox)...
+2026-05-28 06:37:02 | WARNING | utils.captcha_guard            | [reCAPTCHA] Reto visual activo (imágenes). Resolución automática no disponible.
+2026-05-28 06:37:02 | INFO    | utils.captcha_guard            | [CAPTCHA] Reintento 2/2 en 3.7s...
+2026-05-28 06:37:05 | INFO    | utils.captcha_guard            | [CAPTCHA] Intentando resolver reCAPTCHA v2 (checkbox)...
+2026-05-28 06:37:10 | WARNING | utils.captcha_guard            | [reCAPTCHA] Checkbox no marcado tras el click.
+2026-05-28 06:37:10 | ERROR   | utils.captcha_guard            | [CAPTCHA] No se pudo resolver RECAPTCHA_V2 tras 2 intentos | kw='https://www.facebook.com/groups/3170984329754811/posts/'
+2026-05-28 06:37:10 | WARNING | __main__                       | [FB CR General Kano] CAPTCHA no resoluble (signal=selector:iframe[src*='recaptcha']) en 'https://www.facebook.com/groups/3170984329754811/posts/'. Rotando identidad...
+2026-05-28 06:37:10 | INFO    | __main__                       | [FB CR General Kano] Nueva identidad: Win32 | Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0
+2026-05-28 06:37:14 | WARNING | utils.captcha_guard            | [HTTP] Status 403 received | url=https://www.google.com/complete/s?q&cp=0&client=gws-wiz&xssi=t&gs_pcrt=2&hl=es-419&authuser=0&psi=1x
+2026-05-28 06:37:21 | INFO    | __main__                       | Contexto listo: OS=Win32 | UA=Mozilla/5.0 (Windows NT 10.0; Win64; x64…
+2026-05-28 06:37:21 | INFO    | __main__                       | [FB CR General Kano] Reintentando 'https://www.facebook.com/groups/3170984329754811/posts/'...
+2026-05-28 06:38:36 | WARNING | google_cse_automator           | No se pudo activar filtro de fecha: Locator.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator(".gsc-selected-option-container").first
+    - locator resolved to <div class="gsc-selected-option-container gsc-inline-block">…</div>
+  - attempting click action
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+    - waiting 20ms
+    2 × waiting for element to be visible, enabled and stable
+      - element is not visible
+    - retrying click action
+      - waiting 100ms
+    59 × waiting for element to be visible, enabled and stable
+       - element is not visible
+     - retrying click action
+       - waiting 500ms
+
+2026-05-28 06:38:36 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/3170984329754811/posts/'
+2026-05-28 06:38:37 | WARNING | utils.captcha_guard            | [CAPTCHA] Selector 'iframe[src*='recaptcha']' visible | url=https://cse.google.com/cse?cx=294a079ba2d4267d5 | kw='https://www.facebook.com/groups/3170984329754811/posts/'
+2026-05-28 06:38:37 | WARNING | google_cse_automator           | CAPTCHA (signal=selector:iframe[src*='recaptcha']). Intentando resolución automática...
+2026-05-28 06:38:37 | INFO    | utils.captcha_guard            | [CAPTCHA] Intentando resolver automáticamente: RECAPTCHA_V2 | kw='https://www.facebook.com/groups/3170984329754811/posts/'
+2026-05-28 06:38:37 | INFO    | utils.captcha_guard            | [CAPTCHA] Intentando resolver reCAPTCHA v2 (checkbox)...
+2026-05-28 06:38:44 | WARNING | utils.captcha_guard            | [reCAPTCHA] Reto visual activo (imágenes). Resolución automática no disponible.
+2026-05-28 06:38:44 | INFO    | utils.captcha_guard            | [CAPTCHA] Reintento 2/2 en 5.1s...
+2026-05-28 06:38:49 | INFO    | utils.captcha_guard            | [CAPTCHA] Intentando resolver reCAPTCHA v2 (checkbox)...
+2026-05-28 06:38:56 | WARNING | utils.captcha_guard            | [reCAPTCHA] Checkbox no marcado tras el click.
+2026-05-28 06:38:56 | ERROR   | utils.captcha_guard            | [CAPTCHA] No se pudo resolver RECAPTCHA_V2 tras 2 intentos | kw='https://www.facebook.com/groups/3170984329754811/posts/'
+2026-05-28 06:38:56 | ERROR   | __main__                       | [FB CR General Kano] Fallo en reintento con nueva identidad 'https://www.facebook.com/groups/3170984329754811/posts/': CAPTCHA/block detected [selector:iframe[src*='recaptcha']] at: https://cse.google.com/cse?cx=294a079ba2d4267d5
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 257, in _run_engine_keywords
+    await automator.run_keyword(page, kw, total_pages)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 576, in run_keyword
+    await self._extract_page_results(page, keyword)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 319, in _extract_page_results
+    await CaptchaDetector.check(page, keyword)
+  File "/home/kano/go_social_search/utils/captcha_guard.py", line 209, in check
+    raise CaptchaError(page_url=current_url, signal=f"selector:{selector}")
+utils.captcha_guard.CaptchaError: CAPTCHA/block detected [selector:iframe[src*='recaptcha']] at: https://cse.google.com/cse?cx=294a079ba2d4267d5
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 282, in _run_engine_keywords
+    await automator.run_keyword(page, kw, total_pages)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 576, in run_keyword
+    await self._extract_page_results(page, keyword)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 319, in _extract_page_results
+    await CaptchaDetector.check(page, keyword)
+  File "/home/kano/go_social_search/utils/captcha_guard.py", line 209, in check
+    raise CaptchaError(page_url=current_url, signal=f"selector:{selector}")
+utils.captcha_guard.CaptchaError: CAPTCHA/block detected [selector:iframe[src*='recaptcha']] at: https://cse.google.com/cse?cx=294a079ba2d4267d5
+2026-05-28 06:39:08 | INFO    | __main__                       | [FB CR General Kano] [15/151] keyword='https://www.facebook.com/groups/3063203460404398/posts/'
+2026-05-28 06:39:26 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/3063203460404398/posts/'
+2026-05-28 06:39:30 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:39:30 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3063203460404398/posts/'
+2026-05-28 06:39:54 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/3063203460404398/posts/'
+2026-05-28 06:39:57 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:39:57 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3063203460404398/posts/'
+2026-05-28 06:40:24 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/3063203460404398/posts/'
+2026-05-28 06:40:26 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:40:26 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3063203460404398/posts/'
+2026-05-28 06:40:36 | INFO    | __main__                       | [FB CR General Kano] [16/151] keyword='https://www.facebook.com/groups/2778177215613910/posts/'
+2026-05-28 06:40:54 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/2778177215613910/posts/'
+2026-05-28 06:40:56 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:40:56 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/2778177215613910/posts/'
+2026-05-28 06:41:23 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/2778177215613910/posts/'
+2026-05-28 06:41:25 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:41:25 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/2778177215613910/posts/'
+2026-05-28 06:41:52 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/2778177215613910/posts/'
+2026-05-28 06:41:55 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 06:41:55 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/groups/2778177215613910/posts/'
+2026-05-28 06:42:07 | INFO    | __main__                       | [FB CR General Kano] [17/151] keyword='https://www.facebook.com/groups/1315855495741236/posts/'
+2026-05-28 06:42:26 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/1315855495741236/posts/'
+2026-05-28 06:42:30 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:42:30 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/1315855495741236/posts/'
+2026-05-28 06:42:56 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/1315855495741236/posts/'
+2026-05-28 06:43:00 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:43:00 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/1315855495741236/posts/'
+2026-05-28 06:43:20 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/1315855495741236/posts/'
+2026-05-28 06:43:21 | INFO    | database.post_repo             | bulk_insert_new: 4 insertados, 0 omitidos (duplicados).
+2026-05-28 06:43:21 | INFO    | google_cse_automator           | SQLite | 4 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/1315855495741236/posts/'
+2026-05-28 06:43:32 | INFO    | __main__                       | [FB CR General Kano] [18/151] keyword='https://www.facebook.com/america.libre.754277/posts/'
+2026-05-28 06:43:50 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/america.libre.754277/posts/'
+2026-05-28 06:43:53 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:43:53 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/america.libre.754277/posts/'
+2026-05-28 06:44:20 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/america.libre.754277/posts/'
+2026-05-28 06:44:23 | INFO    | database.post_repo             | bulk_insert_new: 6 insertados, 4 omitidos (duplicados).
+2026-05-28 06:44:23 | INFO    | google_cse_automator           | SQLite | 6 insertados, 4 omitidos | keyword='https://www.facebook.com/america.libre.754277/posts/'
+2026-05-28 06:44:43 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/america.libre.754277/posts/'
+2026-05-28 06:44:48 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:44:48 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/america.libre.754277/posts/'
+2026-05-28 06:45:01 | INFO    | __main__                       | [FB CR General Kano] [19/151] keyword='https://www.facebook.com/ranchueleros.por.la.libertad/posts/'
+2026-05-28 06:45:21 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/ranchueleros.por.la.libertad/posts/'
+2026-05-28 06:45:24 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:45:24 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/ranchueleros.por.la.libertad/posts/'
+2026-05-28 06:45:51 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/ranchueleros.por.la.libertad/posts/'
+2026-05-28 06:45:55 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:45:55 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/ranchueleros.por.la.libertad/posts/'
+2026-05-28 06:46:19 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/ranchueleros.por.la.libertad/posts/'
+2026-05-28 06:46:23 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:46:23 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/ranchueleros.por.la.libertad/posts/'
+2026-05-28 06:46:36 | INFO    | __main__                       | [FB CR General Kano] [20/151] keyword='https://www.facebook.com/cladestino.cubano/posts/'
+2026-05-28 06:46:54 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/cladestino.cubano/posts/'
+2026-05-28 06:46:57 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 1 omitidos (duplicados).
+2026-05-28 06:46:57 | INFO    | google_cse_automator           | SQLite | 9 insertados, 1 omitidos | keyword='https://www.facebook.com/cladestino.cubano/posts/'
+2026-05-28 06:47:22 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/cladestino.cubano/posts/'
+2026-05-28 06:47:26 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:47:26 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/cladestino.cubano/posts/'
+2026-05-28 06:47:50 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/cladestino.cubano/posts/'
+2026-05-28 06:47:53 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:47:53 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/cladestino.cubano/posts/'
+2026-05-28 06:48:04 | INFO    | __main__                       | [FB CR General Kano] [21/151] keyword='https://www.facebook.com/juana.arencibia.3/posts/'
+2026-05-28 06:48:21 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/juana.arencibia.3/posts/'
+2026-05-28 06:48:25 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 06:48:25 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/juana.arencibia.3/posts/'
+2026-05-28 06:48:46 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/juana.arencibia.3/posts/'
+2026-05-28 06:48:49 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 1 omitidos (duplicados).
+2026-05-28 06:48:49 | INFO    | google_cse_automator           | SQLite | 9 insertados, 1 omitidos | keyword='https://www.facebook.com/juana.arencibia.3/posts/'
+2026-05-28 06:49:17 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/juana.arencibia.3/posts/'
+2026-05-28 06:49:18 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:49:18 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/juana.arencibia.3/posts/'
+2026-05-28 06:49:29 | INFO    | __main__                       | [FB CR General Kano] [22/151] keyword='https://facebook.com/groups/463363023678634/posts/'
+2026-05-28 06:49:47 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://facebook.com/groups/463363023678634/posts/'
+2026-05-28 06:49:49 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:49:49 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://facebook.com/groups/463363023678634/posts/'
+2026-05-28 06:50:08 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://facebook.com/groups/463363023678634/posts/'
+2026-05-28 06:50:11 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 1 omitidos (duplicados).
+2026-05-28 06:50:11 | INFO    | google_cse_automator           | SQLite | 9 insertados, 1 omitidos | keyword='https://facebook.com/groups/463363023678634/posts/'
+2026-05-28 06:50:37 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://facebook.com/groups/463363023678634/posts/'
+2026-05-28 06:50:41 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:50:41 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://facebook.com/groups/463363023678634/posts/'
+2026-05-28 06:50:54 | INFO    | __main__                       | [FB CR General Kano] [23/151] keyword='https://www.facebook.com/groups/858435034760219/posts/'
+2026-05-28 06:51:14 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/858435034760219/posts/'
+2026-05-28 06:51:16 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:51:16 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/858435034760219/posts/'
+2026-05-28 06:51:37 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/858435034760219/posts/'
+2026-05-28 06:51:37 | INFO    | database.post_repo             | bulk_insert_new: 2 insertados, 0 omitidos (duplicados).
+2026-05-28 06:51:37 | INFO    | google_cse_automator           | SQLite | 2 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/858435034760219/posts/'
+2026-05-28 06:52:14 | INFO    | __main__                       | [FB CR General Kano] [24/151] keyword='https://www.facebook.com/groups/311310173430/posts/'
+2026-05-28 06:52:34 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/311310173430/posts/'
+2026-05-28 06:52:38 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:52:38 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/311310173430/posts/'
+2026-05-28 06:53:06 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/311310173430/posts/'
+2026-05-28 06:53:10 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 1 omitidos (duplicados).
+2026-05-28 06:53:10 | INFO    | google_cse_automator           | SQLite | 9 insertados, 1 omitidos | keyword='https://www.facebook.com/groups/311310173430/posts/'
+2026-05-28 06:53:31 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/311310173430/posts/'
+2026-05-28 06:53:33 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:53:33 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/311310173430/posts/'
+2026-05-28 06:53:49 | INFO    | __main__                       | [FB CR General Kano] [25/151] keyword='https://www.facebook.com/groups/3061231334163874/posts/'
+2026-05-28 06:54:07 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/3061231334163874/posts/'
+2026-05-28 06:54:10 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:54:10 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3061231334163874/posts/'
+2026-05-28 06:54:28 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/3061231334163874/posts/'
+2026-05-28 06:54:31 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:54:31 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3061231334163874/posts/'
+2026-05-28 06:54:52 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/3061231334163874/posts/'
+2026-05-28 06:54:55 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:54:55 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3061231334163874/posts/'
+2026-05-28 06:55:08 | INFO    | __main__                       | [FB CR General Kano] [26/151] keyword='https://www.facebook.com/groups/cubaquierelibertad/posts/'
+2026-05-28 06:55:28 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/cubaquierelibertad/posts/'
+2026-05-28 06:55:30 | INFO    | database.post_repo             | bulk_insert_new: 5 insertados, 5 omitidos (duplicados).
+2026-05-28 06:55:30 | INFO    | google_cse_automator           | SQLite | 5 insertados, 5 omitidos | keyword='https://www.facebook.com/groups/cubaquierelibertad/posts/'
+2026-05-28 06:55:55 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/cubaquierelibertad/posts/'
+2026-05-28 06:55:59 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 06:55:59 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/groups/cubaquierelibertad/posts/'
+2026-05-28 06:56:20 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/cubaquierelibertad/posts/'
+2026-05-28 06:56:22 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 1 omitidos (duplicados).
+2026-05-28 06:56:22 | INFO    | google_cse_automator           | SQLite | 9 insertados, 1 omitidos | keyword='https://www.facebook.com/groups/cubaquierelibertad/posts/'
+2026-05-28 06:56:30 | INFO    | __main__                       | [FB CR General Kano] [27/151] keyword='https://www.facebook.com/groups/947108259119762/posts/'
+2026-05-28 06:56:49 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/947108259119762/posts/'
+2026-05-28 06:56:54 | INFO    | database.post_repo             | bulk_insert_new: 7 insertados, 3 omitidos (duplicados).
+2026-05-28 06:56:54 | INFO    | google_cse_automator           | SQLite | 7 insertados, 3 omitidos | keyword='https://www.facebook.com/groups/947108259119762/posts/'
+2026-05-28 06:57:23 | ERROR   | __main__                       | [FB CR General Kano] Error en 'https://www.facebook.com/groups/947108259119762/posts/': Locator.wait_for: Timeout 12000ms exceeded.
+Call log:
+  - waiting for locator(".gsc-cursor-current-page").filter(has_text="2") to be visible
+Traceback (most recent call last):
+  File "/home/kano/go_social_search/run_scraper.py", line 257, in _run_engine_keywords
+    await automator.run_keyword(page, kw, total_pages)
+  File "/home/kano/go_social_search/google_cse_automator.py", line 629, in run_keyword
+    await page.locator(".gsc-cursor-current-page").filter(
+        has_text=str(current_p + 1)
+    ).wait_for(state="visible", timeout=12_000)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/async_api/_generated.py", line 17993, in wait_for
+    await self._impl_obj.wait_for(timeout=timeout, state=state)
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_locator.py", line 710, in wait_for
+    await self._frame.wait_for_selector(
+        self._selector, strict=True, timeout=timeout, state=state
+    )
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_frame.py", line 369, in wait_for_selector
+    await self._channel.send(
+        "waitForSelector", self._timeout, locals_to_params(locals())
+    )
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 69, in send
+    return await self._connection.wrap_api_call(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/home/kano/.local/lib/python3.13/site-packages/playwright/_impl/_connection.py", line 559, in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 12000ms exceeded.
+Call log:
+  - waiting for locator(".gsc-cursor-current-page").filter(has_text="2") to be visible
+
+2026-05-28 06:57:24 | INFO    | __main__                       | [FB CR General Kano] Página recreada.
+2026-05-28 06:57:36 | INFO    | __main__                       | [FB CR General Kano] [28/151] keyword='https://www.facebook.com/groups/3250858908484723/posts/'
+2026-05-28 06:58:08 | WARNING | google_cse_automator           | No se pudo activar filtro de fecha: Timeout 10000ms exceeded.
+2026-05-28 06:58:08 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/3250858908484723/posts/'
+2026-05-28 06:58:11 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:58:11 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3250858908484723/posts/'
+2026-05-28 06:58:35 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/3250858908484723/posts/'
+2026-05-28 06:58:37 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:58:37 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3250858908484723/posts/'
+2026-05-28 06:59:04 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/3250858908484723/posts/'
+2026-05-28 06:59:06 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:59:06 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3250858908484723/posts/'
+2026-05-28 06:59:19 | INFO    | __main__                       | [FB CR General Kano] [29/151] keyword='https://www.facebook.com/groups/673606370207296/posts/'
+2026-05-28 06:59:37 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/673606370207296/posts/'
+2026-05-28 06:59:40 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 06:59:40 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/673606370207296/posts/'
+2026-05-28 07:00:08 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/673606370207296/posts/'
+2026-05-28 07:00:12 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:00:12 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/673606370207296/posts/'
+2026-05-28 07:00:43 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/673606370207296/posts/'
+2026-05-28 07:00:45 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:00:45 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/673606370207296/posts/'
+2026-05-28 07:01:00 | INFO    | __main__                       | [FB CR General Kano] [30/151] keyword='https://www.facebook.com/groups/1361964128659573/posts/'
+2026-05-28 07:01:20 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/1361964128659573/posts/'
+2026-05-28 07:01:22 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:01:22 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/1361964128659573/posts/'
+2026-05-28 07:01:47 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/1361964128659573/posts/'
+2026-05-28 07:01:49 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:01:49 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/1361964128659573/posts/'
+2026-05-28 07:02:10 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/1361964128659573/posts/'
+2026-05-28 07:02:14 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:02:14 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/1361964128659573/posts/'
+2026-05-28 07:02:28 | INFO    | __main__                       | [FB CR General Kano] [31/151] keyword='https://www.facebook.com/groups/426378568468028/posts/'
+2026-05-28 07:02:49 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/426378568468028/posts/'
+2026-05-28 07:02:52 | INFO    | database.post_repo             | bulk_insert_new: 9 insertados, 1 omitidos (duplicados).
+2026-05-28 07:02:52 | INFO    | google_cse_automator           | SQLite | 9 insertados, 1 omitidos | keyword='https://www.facebook.com/groups/426378568468028/posts/'
+2026-05-28 07:03:19 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/426378568468028/posts/'
+2026-05-28 07:03:22 | INFO    | database.post_repo             | bulk_insert_new: 8 insertados, 2 omitidos (duplicados).
+2026-05-28 07:03:22 | INFO    | google_cse_automator           | SQLite | 8 insertados, 2 omitidos | keyword='https://www.facebook.com/groups/426378568468028/posts/'
+2026-05-28 07:03:46 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/426378568468028/posts/'
+2026-05-28 07:03:48 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:03:48 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/426378568468028/posts/'
+2026-05-28 07:04:03 | INFO    | __main__                       | [FB CR General Kano] [32/151] keyword='https://www.facebook.com/groups/220549474641150/posts/'
+2026-05-28 07:04:22 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/220549474641150/posts/'
+2026-05-28 07:04:26 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:04:26 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/220549474641150/posts/'
+2026-05-28 07:05:00 | INFO    | __main__                       | [FB CR General Kano] [33/151] keyword='https://www.facebook.com/groups/3634905446747150/posts/'
+2026-05-28 07:05:19 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/3634905446747150/posts/'
+2026-05-28 07:05:22 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:05:22 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3634905446747150/posts/'
+2026-05-28 07:05:49 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/3634905446747150/posts/'
+2026-05-28 07:05:52 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:05:52 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3634905446747150/posts/'
+2026-05-28 07:06:18 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/3634905446747150/posts/'
+2026-05-28 07:06:21 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:06:21 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/3634905446747150/posts/'
+2026-05-28 07:06:31 | INFO    | __main__                       | [FB CR General Kano] [34/151] keyword='https://www.facebook.com/groups/tunasrevolico2025/posts/'
+2026-05-28 07:06:49 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/tunasrevolico2025/posts/'
+2026-05-28 07:06:52 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:06:52 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/tunasrevolico2025/posts/'
+2026-05-28 07:07:16 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/tunasrevolico2025/posts/'
+2026-05-28 07:07:19 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:07:19 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/tunasrevolico2025/posts/'
+2026-05-28 07:07:45 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/tunasrevolico2025/posts/'
+2026-05-28 07:07:49 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:07:49 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/tunasrevolico2025/posts/'
+2026-05-28 07:08:00 | INFO    | __main__                       | [FB CR General Kano] [35/151] keyword='https://www.facebook.com/groups/noticiasdeactualidadencuba14ymedio/'
+2026-05-28 07:08:19 | INFO    | google_cse_automator           | Página 1/3 | keyword='https://www.facebook.com/groups/noticiasdeactualidadencuba14ymedio/'
+2026-05-28 07:08:21 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:08:21 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/noticiasdeactualidadencuba14ymedio/'
+2026-05-28 07:08:49 | INFO    | google_cse_automator           | Página 2/3 | keyword='https://www.facebook.com/groups/noticiasdeactualidadencuba14ymedio/'
+2026-05-28 07:08:51 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:08:51 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/noticiasdeactualidadencuba14ymedio/'
+2026-05-28 07:09:14 | INFO    | google_cse_automator           | Página 3/3 | keyword='https://www.facebook.com/groups/noticiasdeactualidadencuba14ymedio/'
+2026-05-28 07:09:16 | INFO    | database.post_repo             | bulk_insert_new: 10 insertados, 0 omitidos (duplicados).
+2026-05-28 07:09:16 | INFO    | google_cse_automator           | SQLite | 10 insertados, 0 omitidos | keyword='https://www.facebook.com/groups/noticiasdeactualidadencuba14ymedio/'
+2026-05-28 07:09:28 | INFO    | __main__                       | [FB CR General Kano] [36/151] keyword='https://www.facebook.com/groups/760282752906060/posts/'

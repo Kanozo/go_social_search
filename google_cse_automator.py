@@ -19,12 +19,13 @@ import random
 import re
 import sys
 from datetime import datetime, timedelta, timezone
-from typing import Any, TypedDict
+from typing import Any, TypedDict, Optional
 
 import httpx
 from dateutil.relativedelta import relativedelta
 from playwright.async_api import (
     Page,
+    Route,
     TimeoutError as PlaywrightTimeoutError,
 )
 
@@ -273,6 +274,39 @@ class GoogleCSEAutomator:
                     random.uniform(vp["width"] * 0.1, vp["width"] * 0.9),
                     random.uniform(vp["height"] * 0.1, vp["height"] * 0.8),
                 )
+
+    # google_cse_automator.py
+    async def block_images_async(
+        self,  # ← ¡Agrega esto!
+        page: Page, 
+        url_pattern: Optional[str] = None,
+        log_blocked: bool = False  # ← Opcional: para debugging
+    ) -> None:
+        """
+        Configura interceptor para bloquear imágenes en Playwright.
+        
+        Args:
+            page: Instancia de Page de Playwright.
+            url_pattern: Si se proporciona, solo bloquea imágenes en URLs que contengan este patrón.
+            log_blocked: Si True, loguea las URLs bloqueadas para debugging.
+        """
+        async def handle_route(route: Route) -> None:
+            try:
+                if route.request.resource_type == "image":
+                    if url_pattern is None or url_pattern in route.request.url:
+                        if log_blocked:
+                            logger.debug("🚫 Bloqueada imagen: %s", route.request.url)
+                        await route.abort()
+                        return
+                await route.continue_()
+            except Exception as exc:
+                # Nunca dejar que un error en el interceptor rompa la navegación
+                logger.debug("Error en route handler: %s", exc)
+                await route.continue_()
+        
+        # ⚠️ IMPORTANTE: El route debe registrarse ANTES de cualquier navegación
+        await page.route("**/*", handle_route)
+        logger.debug("Interceptor de imágenes registrado en página")
 
     async def _extract_page_results(self, page: Page, keyword: str) -> None:
         """
