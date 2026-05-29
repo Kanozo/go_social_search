@@ -124,5 +124,4 @@ class _Settings:
             f"DATA_STORE_TOKEN={token_preview}>"
         )
 
-
 settings = _Settings()

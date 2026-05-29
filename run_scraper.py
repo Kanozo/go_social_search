@@ -20,6 +20,7 @@ from utils.session_store import SessionStore
 
 logger = logging.getLogger(__name__)
 FILTER = "FB CR General Kano"
+FILTER = "KW IG"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Keywords de fallback (solo se usan si la tabla keywords está vacía)
