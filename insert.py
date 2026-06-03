@@ -10,15 +10,15 @@ async def main() -> None:
     await manager.connect()
     repo = KeywordRepository(manager)
 
-    items = load_sources_from_file('search/test.txt')
+    items = load_sources_from_file('search/google.txt')
 
     for item in items:
         key = KeywordCreate(
             keyword=item,
-            label="FB Paginas oficiosas",
-            platform="facebook",
-            engine_id="294a079ba2d4267d5",
-            classification="negativo"
+            label="Google",
+            platform="FB - IG",
+            engine_id="google",
+            classification="neutro"
         )
         result = await repo.insert_one(key)
         print(result)

@@ -1,127 +1,126 @@
 """
 config/settings.py
-Configuración centralizada de la aplicación.
+Lectura de configuración desde config.ini con configparser puro (stdlib).
 
-Todos los parámetros se leen primero de variables de entorno y caen
-en valores por defecto razonables si no existen.
-
-Variables de entorno relevantes::
-
-    # Modo de salida: dónde se persisten los resultados scrapeados
-    OUTPUT_MODE=mongodb          # "mongodb" | "api"
-
-    # MongoDB (solo necesario si OUTPUT_MODE=mongodb)
-    MONGO_URL=mongodb://localhost:27017
-    DB_NAME=scraper_db
-
-    # API externa (solo necesario si OUTPUT_MODE=api)
-    DATA_STORE_TOKEN=<token>
-    DATA_STORE_BASE_URL=https://notires.rem.cu/api
-    DATA_STORE_VERIFY_SSL=false
-
-    # Browser
-    BROWSER_HEADLESS=false
-    BROWSER_TYPE=firefox          # "firefox" | "chromium"
-
-    # Ciclo de scraping
-    CYCLE_DELAY_SECONDS=3600
-    TOTAL_PAGES_PER_KEYWORD=3
-
-    # Sesiones
-    SESSION_PERSIST=true
-
-    # Logging
-    LOG_LEVEL=INFO
+Sin dependencias externas. El fichero config.ini es el contrato estable;
+este módulo mapea sus secciones/claves a atributos tipados de _Settings.
 """
 from __future__ import annotations
 
-import os
+import logging
+import warnings
+from functools import lru_cache
 from pathlib import Path
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Rutas base (calculadas en tiempo de importación, independiente de env vars)
-# ─────────────────────────────────────────────────────────────────────────────
-BASE_DIR: Path = Path(__file__).resolve().parent.parent
-SESSION_DIR: Path = BASE_DIR / "sessions"
-LOG_DIR: Path = BASE_DIR / "logs"
+import configparser
 
-SESSION_DIR.mkdir(parents=True, exist_ok=True)
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+logger = logging.getLogger(__name__)
 
-
-def _bool_env(key: str, default: bool) -> bool:
-    """Lee una variable de entorno como booleano (true/false, case-insensitive)."""
-    return os.getenv(key, str(default)).lower() == "true"
-
-
-def _int_env(key: str, default: int) -> int:
-    """Lee una variable de entorno como entero, con fallback al default."""
-    raw = os.getenv(key)
-    if raw is None:
-        return default
-    try:
-        return int(raw)
-    except ValueError:
-        return default
+_INI_PATH: Path = Path(__file__).parent.parent / "config.ini"
 
 
 class _Settings:
     """
-    Contenedor de configuración de la aplicación.
+    Configuración completa del scraper leída desde config.ini.
 
-    Prioridad de resolución: variable de entorno > valor por defecto.
-    Todos los atributos son de tipo Python nativo (str, int, bool, Path),
-    nunca descriptores de Pydantic — esta no es un BaseModel.
-
-    Para cambiar un valor en runtime, exporta la variable de entorno
-    correspondiente ANTES de importar este módulo.
+    Atributos tipados con valores por defecto que replican los del ini.
+    Las secciones y claves coinciden exactamente con config.ini.
     """
 
-    # ── API externa ───────────────────────────────────────────────────────────
-    # ⚠️  NUNCA hardcodear tokens aquí — usa la variable de entorno DATA_STORE_TOKEN.
-    DATA_STORE_TOKEN:      str  = os.getenv("DATA_STORE_TOKEN", "42|htoFv3uJ8ZIJMuWoSDQkmLOK0vnv5GSoGbQaKDWBf2cb6b41")
-    DATA_STORE_BASE_URL:   str  = os.getenv("DATA_STORE_BASE_URL", "https://notires.rem.cu/api")
-    DATA_STORE_VERIFY_SSL: bool = _bool_env("DATA_STORE_VERIFY_SSL", False)
+    def __init__(self, ini_path: Path = _INI_PATH) -> None:
+        if not ini_path.exists():
+            warnings.warn(
+                f"config.ini no encontrado en '{ini_path}'. "
+                "Se usarán los valores por defecto para todos los parámetros.",
+                stacklevel=2,
+            )
 
-    # ── Browser ───────────────────────────────────────────────────────────────
-    BROWSER_HEADLESS: bool = _bool_env("BROWSER_HEADLESS", False)
-    BROWSER_TYPE:     str  = os.getenv("BROWSER_TYPE", "firefox")  # "firefox" | "chromium"
+        parser = configparser.ConfigParser(
+            interpolation=None,
+            # FIX: sin esto, "true  ; comentario" se lee como string completo
+            # y getboolean/getint fallan silenciosamente devolviendo el fallback.
+            inline_comment_prefixes=(";", "#"),
+        )
+        parser.read(ini_path, encoding="utf-8")
 
-    # ── Ciclo de scraping ─────────────────────────────────────────────────────
-    CYCLE_DELAY_SECONDS:     int = _int_env("CYCLE_DELAY_SECONDS", 3600)
-    TOTAL_PAGES_PER_KEYWORD: int = _int_env("TOTAL_PAGES_PER_KEYWORD", 3)
+        # ── Helpers internos ─────────────────────────────────────────────────
 
-    # ── Sesiones persistentes ─────────────────────────────────────────────────
-    SESSION_PERSIST: bool = _bool_env("SESSION_PERSIST", True)
-    SESSION_DIR:     Path = SESSION_DIR
+        def _str(section: str, key: str, fallback: str = "") -> str:
+            return parser.get(section, key, fallback=fallback).strip()
 
-    # ── Logging ───────────────────────────────────────────────────────────────
-    LOG_LEVEL: str  = os.getenv("LOG_LEVEL", "INFO")
-    LOG_DIR:   Path = LOG_DIR
-    LOG_FILE:  str  = os.getenv("LOG_FILE", "app.log")
+        def _bool(section: str, key: str, fallback: bool = False) -> bool:
+            return parser.getboolean(section, key, fallback=fallback)
 
-    LOG_AUDIT_FILE: str = os.getenv("LOG_AUDIT_FILE", "audit.log")
+        def _int(section: str, key: str, fallback: int = 0) -> int:
+            return parser.getint(section, key, fallback=fallback)
 
-    LOG_MAX_BYTES: int = os.getenv("LOG_MAX_BYTES", 10_485_760)
-    LOG_BACKUP_COUNT: int = os.getenv("LOG_BACKUP_COUNT", 3)
+        # ── [paths] ──────────────────────────────────────────────────────────
+        # Sección opcional; si no existe usa rutas relativas al CWD.
+        self.SESSION_DIR: Path = Path(_str("paths", "session_dir", "sessions"))
+        self.LOG_DIR:     Path = Path(_str("paths", "log_dir",     "logs"))
 
+        # ── [logging] ────────────────────────────────────────────────────────
+        self.LOG_LEVEL:        str = _str("logging", "level",        "INFO").upper()
+        self.LOG_FILE:         str = _str("logging", "file",         "app.log")
+        self.LOG_AUDIT_FILE:   str = _str("logging", "audit_file",   "audit.log")
+        self.LOG_MAX_BYTES:    int = _int("logging", "max_bytes",    10_485_760)
+        self.LOG_BACKUP_COUNT: int = _int("logging", "backup_count", 3)
 
-    # ── Colecciones MongoDB ───────────────────────────────────────────────────
-    GOOGLE_RESULTS_COLLECTION: str = os.getenv("GOOGLE_RESULTS_COLLECTION", "google_results")
-    # ── Pool de conexiones MongoDB ────────────────────────────────────────
-    MAX_POOL_SIZE: int = os.getenv("MAX_POOL_SIZE", 10)
-    MIN_POOL_SIZE: int = os.getenv("MIN_POOL_SIZE", 1)
+        # ── [browser] ────────────────────────────────────────────────────────
+        self.BROWSER_TYPE:               str  = _str ("browser", "type",                   "firefox")
+        self.BROWSER_HEADLESS_DEFAULT:   bool = _bool("browser", "headless_default",       True)
+        self.BROWSER_VISIBLE_ON_CAPTCHA: bool = _bool("browser", "visible_on_captcha",     True)
+        self.HEADLESS_AFTER_CAPTCHA:     bool = _bool("browser", "headless_after_captcha", False)
+        self.CAPTCHA_MANUAL_TIMEOUT:     int  = _int ("browser", "captcha_manual_timeout", 300)
 
-    OUTPUT_MODE: str = os.getenv("OUTPUT_MODE", "sqlite")
+        # ── [concurrency] ────────────────────────────────────────────────────
+        self.MAX_CONCURRENT_BROWSERS: int = _int("concurrency", "max_browsers", 2)
+
+        # ── [scraping] ───────────────────────────────────────────────────────
+        self.TOTAL_PAGES_PER_KEYWORD: int = _int("scraping", "total_pages_per_keyword", 3)
+        self.CYCLE_DELAY_SECONDS:     int = _int("scraping", "cycle_delay_seconds",     3600)
+
+        # ── [session] ────────────────────────────────────────────────────────
+        self.SESSION_PERSIST: bool = _bool("session", "persist", True)
+
+        # ── [output] ─────────────────────────────────────────────────────────
+        self.OUTPUT_MODE: str = _str("output", "mode", "sqlite")
+
+        # ── [api] ────────────────────────────────────────────────────────────
+        self.DATA_STORE_BASE_URL:   str  = _str ("api", "data_store_base_url",   "")
+        self.DATA_STORE_TOKEN:      str  = _str ("api", "data_store_token",      "")
+        self.DATA_STORE_VERIFY_SSL: bool = _bool("api", "data_store_verify_ssl", True)
 
     def __repr__(self) -> str:
-        """Representación segura: oculta el token del API."""
-        token_preview = f"{self.DATA_STORE_TOKEN[:6]}..." if self.DATA_STORE_TOKEN else "(vacío)"
+        """Oculta el token en repr para que no aparezca en logs."""
+        token_display = (
+            f"{'*' * 8}{self.DATA_STORE_TOKEN[-4:]}"
+            if self.DATA_STORE_TOKEN
+            else "(vacío)"
+        )
         return (
-            f"<Settings OUTPUT_MODE={self.OUTPUT_MODE!r} "
-            f"BROWSER_TYPE={self.BROWSER_TYPE!r} "
-            f"LOG_LEVEL={self.LOG_LEVEL!r} "
-            f"DATA_STORE_TOKEN={token_preview}>"
+            f"<Settings "
+            f"browser={self.BROWSER_TYPE} "
+            f"headless={self.BROWSER_HEADLESS_DEFAULT} "
+            f"output={self.OUTPUT_MODE} "
+            f"concurrent={self.MAX_CONCURRENT_BROWSERS} "
+            f"token={token_display}>"
         )
 
-settings = _Settings()
+
+@lru_cache(maxsize=1)
+def _load_settings() -> _Settings:
+    """
+    Carga y cachea la instancia singleton de _Settings.
+
+    El ini se parsea exactamente una vez por proceso. En tests:
+        _load_settings.cache_clear()
+        settings = _load_settings()
+    """
+    instance = _Settings()
+    logger.debug("Settings cargados: %r", instance)
+    return instance
+
+
+# Singleton de acceso directo: from config.settings import settings
+settings: _Settings = _load_settings()

@@ -355,7 +355,25 @@ class KeywordRepository:
             groups[key]["keywords"].append(row["keyword"])
 
         return list(groups.values())
+    
+    async def get_google_search_keywords(self):
+        rows = await self._db.execute_fetchall(
+            """
+            SELECT keyword
+            FROM   keywords
+            WHERE  label = 'Google'
+            ORDER  BY last_scrap
+            """
+        )
+
+        keywords = [row["keyword"] for row in rows]
+        
+        return keywords
 
     async def count(self) -> int:
         """Número total de keywords en la tabla."""
         return await self._db.table_count("keywords")
+    
+    async def get_labels(self) -> int:
+        """Número total de keywords en la tabla."""
+        return await self._db.execute_fetchall("SELECT DISTINCT label FROM keywords")

@@ -1,4 +1,46 @@
 #Cuba
+#CuballamaNoticias
+#cubanos
+#CubanosPorElMundo
+#NoticiasDeCuba
+#CrisisEnCuba
+#LaHabana
+#NoticiasCuba
+#CrisisCubana
+#Cubanos
+#FarandulaCubana
+#MigraciónCubana
+#ActualidadCubana
+#BrunoRodriguez
+#FamiliaCubana
+#CubaHoy
+#DiazCanel
+#EmigraciónCubana
+#LaSombrillaAmarilla
+#Marcolina
+#Matanzas
+#MúsicaCubana
+#NostalgiaCubana
+#NoticiasCubanas
+#RaúlCastro
+#RégimenCubano
+#TelevisiónCubana
+#Varadero
+#cubanosenmiami
+#cubanosporelmundo
+#friendsofthecubalibraryinc
+#habana
+#isladelajuventud
+#lahabana
+#missuniversocuba
+#noticiascuba
+#noticiasdeCuba
+#tryphabanalibre
+#ApagonesCuba
+#ComunidadCubana
+#JaRulay
+#RepartoCubano
+#SantiagoDeCuba
 #LaPatriaSeDefiende
 #RaúlEsRaúl
 #CubaNoEstáSola
@@ -39,12 +81,9 @@
 #LasTunas
 #SiempreXCuba
 #DerechosHumanos
-#Matanzas
-#RaúlCastro
 #Camagüey
 #DeporteCubano
 #SomosCuba
-#EstadosUnidos
 #EtecsaConCuba
 #YoSigoAMiPresidente
 #AbajoElBloqueo
@@ -53,19 +92,15 @@
 #PorLasTunasLaVictoria
 #ProvinciaGranma
 #VillaClaraConTodos
-#PáginasAmarillasDeEtecsa
 #CubaEsRevolución
 #Guantánamo
-#RaulEsRaul
 #NoMasMuela
 #cuba
 #LaPatriaSeDediende
 #SOSCuba
-#SantiagoDeCuba
 #SíSePuede
 #TenemosMemoria
 #UniversidadCubana
-#LaHabana
 #SantoDomingo2026
 #CaféMartiano
 #CubaPorLaSalud
@@ -85,9 +120,7 @@
 #policíacubana
 #patriayvida
 #cubahoy
-#RégimenCubano
 #LibertadParaCuba
-#CrisisEnCuba
 #PatriaYVida
 #CubaLibre
 #CubaEstadoFallido
@@ -99,7 +132,6 @@
 #11J
 #AbajoLaDictadura
 #protestasencuba
-#cubanos
 #cubalibre
 #RaulCastro
 #ProtestasenLaHabana
@@ -117,7 +149,6 @@
 #AdriánCuruneaux
 #lafamiliacubana
 #freecuba
-#cubanosporelmundo
 #cubanas
 #cubaestadofallido
 #ServicioMilitarObligatorio
@@ -143,7 +174,6 @@
 #HéroesDeAzul
 #ContraLasDrogasSeGana
 #CubaEstaFirme
-#95DeRaul
 #MisManosPorCuba
 cubanos
 habana
@@ -151,7 +181,6 @@ havana
 cubana
 díaz-canel
 #cubaestafirme
-#mifirmaporlapatria
 #cubasoberana
 #cubaestadoterrorista
 #lapatriasedefiende
@@ -186,41 +215,3 @@ díaz-canel
 #noticiasdecuba
 #bloqueogenocida
 #mujeresenrevolucion
-Pinar del Río
-Artemisa
-La Habana
-Mayabeque
-Matanzas
-Cienfuegos
-Villa Clara
-Sancti Spíritus
-Ciego de Ávila
-Camagüey
-Las Tunas
-Granma
-Holguín
-Santiago de Cuba
-Guantánamo
-Isla de la Juventud
-Minas de Matahambre
-Ciénaga de Zapata
-Plaza de la Revolución
-Diez de Octubre
-Arroyo Naranjo
-San Miguel del Padrón
-La Habana Vieja
-Centro Habana
-La Habana del Este
-Cerro
-Cotorro
-Boyeros
-Regla
-Guanabacoa
-Marianao
-La Lisa
-Cabaiguán
-Jatibonico
-Taguasco
-Yaguajay
-Caimanera
-Maisí

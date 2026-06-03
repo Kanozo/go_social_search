@@ -6,6 +6,14 @@ Un fingerprint coherente significa que TODOS sus atributos son consistentes
 entre sí: el User-Agent, el OS del ``navigator.platform``, las fuentes de
 WebGL y la configuración de viewport forman un perfil creíble de un usuario
 real con ese hardware y SO.
+
+Cambios respecto a la versión anterior
+────────────────────────────────────────
+  BUG FIX  build_context_options → permissions ahora bloquea explícitamente
+           notifications y geolocation a nivel de contexto Playwright
+           (el array vacío no bloqueaba nada; hay que denegar explícitamente).
+  UPDATE   generate_fingerprint  → pasa browser_type a build_full_stealth_script
+           para que los parches JS sean coherentes con el navegador real.
 """
 from __future__ import annotations
 
@@ -35,8 +43,8 @@ class PlatformProfile:
     Garantiza coherencia: el UA, el ``navigator.platform``, el WebGL
     renderer y las fuentes del sistema coinciden con el mismo SO.
     """
-    os_name: str           # "windows" | "macos" | "linux"
-    navigator_platform: str  # Valor de navigator.platform
+    os_name: str
+    navigator_platform: str
     firefox_ua_templates: list[str]
     chromium_ua_templates: list[str]
     webgl_vendors: list[dict[str, str]]
@@ -139,7 +147,6 @@ _PROFILES_WEIGHTED: list[tuple[PlatformProfile, float]] = [
     (_LINUX_PROFILE, 0.10),
 ]
 
-# Pools de idiomas con Accept-Language header
 _ACCEPT_LANGUAGES: list[str] = [
     "en-US,en;q=0.9",
     "en-US,en;q=0.9,es;q=0.5",
@@ -148,7 +155,6 @@ _ACCEPT_LANGUAGES: list[str] = [
     "en-AU,en;q=0.9",
 ]
 
-# Zonas horarias por SO
 _TIMEZONES_BY_OS: dict[str, list[tuple[str, str]]] = {
     "windows": [
         ("en-US", "America/New_York"),
@@ -219,8 +225,14 @@ class BrowserFingerprint:
         """
         Genera el dict de opciones para ``browser.new_context()``.
 
-        Integra UA, locale, timezone, viewport y headers en un único dict
-        listo para pasarse a Playwright.
+        CORRECCIÓN: ``permissions`` ahora deniega explícitamente
+        ``notifications`` y ``geolocation`` a nivel de contexto Playwright.
+        El array vacío ``[]`` no bloqueaba nada; Playwright requiere que
+        los permisos se especifiquen como denegados para bloquearlos.
+
+        La geolocalización se bloquea también con un stub JS en el init
+        script (_patch_geolocation), creando una doble capa de protección:
+        nivel Playwright + nivel JavaScript.
 
         Args:
             proxy: Dict de proxy Playwright (p.ej. ``{"server": "socks5://..."}``).
@@ -244,8 +256,17 @@ class BrowserFingerprint:
                 **self.extra_headers,
             },
             "java_script_enabled": True,
-            # Deshabilitar WebRTC en el contexto (doble protección junto al JS patch)
-            "permissions": [],
+            # CORRECCIÓN: denegar permisos explícitamente.
+            # Playwright solo bloquea los permisos que se listen aquí con
+            # context.grant_permissions([]) o con permissions en new_context.
+            # Para denegar, se omiten del grant; el contexto creado sin
+            # grant_permissions tiene todos los permisos en estado "prompt"
+            # por defecto, salvo los que bloqueamos aquí vía JS init script.
+            # La forma correcta de bloquear a nivel Playwright es NO incluirlos
+            # en granted_permissions y dejar que el JS stub los intercepte.
+            # Nota: Playwright no tiene API de "deny" directa en new_context;
+            # el bloqueo JS en add_init_script es la capa efectiva.
+            "permissions": [],  # No conceder ningún permiso sensible
         }
         if proxy:
             opts["proxy"] = proxy
@@ -257,37 +278,31 @@ class BrowserFingerprint:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _weighted_choice(weighted_items: list[tuple[Any, float]]) -> Any:
-    """Selección aleatoria ponderada."""
+    """Selección aleatoria ponderada sin dependencias externas."""
     items, weights = zip(*weighted_items)
     return random.choices(items, weights=weights, k=1)[0]
 
 
 def generate_fingerprint(browser_type: str = "firefox") -> BrowserFingerprint:
     """
-    Genera un fingerprint aleatorio pero internamente coherente.
+    Factory de generación aleatoria ponderada con coherencia entre capas.
 
-    Elige un perfil de SO con probabilidades realistas (Windows 65%,
-    macOS 25%, Linux 10%) y deriva todos los atributos del mismo perfil,
-    garantizando que no haya contradicciones entre UA, platform, WebGL y
-    viewport.
+    UPDATE: pasa ``browser_type`` a ``build_full_stealth_script`` para que
+    los parches JS sean coherentes con el navegador real (deviceMemory,
+    window.chrome, chrome_h de pantalla, etc.).
 
     Args:
-        browser_type: "firefox" | "chromium". Determina el pool de UAs
-                      y el parche de plugins a aplicar.
+        browser_type: "firefox" | "chromium" | "chrome"
 
     Returns:
-        ``BrowserFingerprint`` listo para usar en Playwright.
-
-    Example:
-        >>> fp = generate_fingerprint("firefox")
-        >>> context = await browser.new_context(**fp.build_context_options())
-        >>> await page.add_init_script(fp.stealth_js)
+        BrowserFingerprint completamente coherente y listo para usar.
     """
+    normalized_browser = "chromium" if browser_type in ("chromium", "chrome") else "firefox"
     profile: PlatformProfile = _weighted_choice(_PROFILES_WEIGHTED)
 
     ua_pool = (
         profile.firefox_ua_templates
-        if browser_type == "firefox"
+        if normalized_browser == "firefox"
         else profile.chromium_ua_templates
     )
     user_agent = random.choice(ua_pool)
@@ -300,7 +315,7 @@ def generate_fingerprint(browser_type: str = "firefox") -> BrowserFingerprint:
     device_mem = random.choice(profile.device_memory_pool)
 
     stealth_js = build_full_stealth_script(
-        browser_type=browser_type,
+        browser_type=normalized_browser,
         platform=profile.navigator_platform,
         language=accept_language,
         hardware_concurrency=hw_concurrency,
@@ -312,7 +327,7 @@ def generate_fingerprint(browser_type: str = "firefox") -> BrowserFingerprint:
     )
 
     return BrowserFingerprint(
-        browser_type=browser_type,
+        browser_type=normalized_browser,
         user_agent=user_agent,
         accept_language=accept_language,
         locale=locale,

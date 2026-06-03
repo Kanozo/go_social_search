@@ -191,6 +191,14 @@ class PostRepository:
             )
             return cursor.rowcount > 0
 
+    async def mark_sent_to_db(self, url: str) -> bool:
+        async with self._db.write() as conn:
+            cursor = await conn.execute(
+                "UPDATE posts SET was_sent = ? WHERE url = ? AND was_sent IS NULL",
+                (_to_iso(datetime.now(timezone.utc)), url),
+            )
+            return cursor.rowcount > 0
+
     async def mark_many_sent(self, urls: list[str]) -> int:
         """
         Fija ``sent_at`` en batch para múltiples URLs en una sola transacción.
