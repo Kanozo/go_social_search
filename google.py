@@ -21,6 +21,7 @@ from playwright.async_api import (
     BrowserContext,
     Locator,
     Page,
+    Route,
     TimeoutError as PlaywrightTimeoutError,
     async_playwright,
 )
@@ -47,6 +48,18 @@ NAVIGATION_TIMEOUT_MS = 30_000
 SCROLL_PAUSE_MS = (800, 1_400)
 PAGE_LOAD_PAUSE_MS = (1_500, 3_000)
 TYPING_DELAY_MS = (60, 130)
+
+_RESULT_CONTENT_SELECTORS = (
+    "div#search",           # Tab Todo / Web / Noticias
+    "div#rso",              # Resultados orgánicos
+    "div[data-ved]",        # Cualquier resultado con tracking de Google
+    "g-card",               # Cards de Noticias
+    "div.islrc",            # Grid de Imágenes
+    "ytd-video-renderer",   # Videos
+)
+
+_CONTENT_READY_RETRIES    = 3  
+_CONTENT_READY_TIMEOUT_MS = 8_000 
 
 TARGET_SITES = ["facebook.com", "instagram.com"]
 SCROLL_ONLY_TABS: frozenset[str] = frozenset({"Imágenes", "Vídeos", "Vídeos cortos"})
@@ -129,17 +142,60 @@ async def _move_mouse_randomly(page: Page) -> None:
     await page.mouse.move(x, y)
 
 
-async def _scroll_to_bottom(page: Page) -> None:
-    """Scroll progresivo hasta el final de la página."""
+async def _scroll_to_bottom(
+    page: Page,
+    stable_retries: int = 3,
+    retry_wait_ms: tuple[int, int] = (1_200, 2_000),
+) -> None:
+    """
+    Scroll progresivo hasta el final de la página con reintentos de estabilidad.
+ 
+    Antes de declarar que llegó al final, verifica que la altura no cambie
+    en ``stable_retries`` comprobaciones consecutivas, dando tiempo al
+    contenido lazy/infinite-scroll a terminar de cargar.
+ 
+    Args:
+        page: Página de Playwright activa.
+        stable_retries: Nº de comprobaciones consecutivas con altura igual
+                        antes de considerar la página completamente cargada.
+        retry_wait_ms:  Rango de espera (ms) entre cada reintento de estabilidad.
+    """
     last_height: int = await page.evaluate("document.body.scrollHeight")
+    stable_count = 0
+ 
     while True:
         await page.evaluate("window.scrollBy(0, window.innerHeight * 0.8)")
         await _random_sleep(*SCROLL_PAUSE_MS)
         await _move_mouse_randomly(page)
+ 
         new_height: int = await page.evaluate("document.body.scrollHeight")
+ 
         if new_height == last_height:
-            break
-        last_height = new_height
+            stable_count += 1
+            logger.debug(
+                "Altura estable (%d/%d) — esperando carga lazy...",
+                stable_count, stable_retries,
+            )
+            if stable_count >= stable_retries:
+                # Última comprobación: esperar networkidle antes de confirmar fin
+                try:
+                    await page.wait_for_load_state("networkidle", timeout=5_000)
+                except PlaywrightTimeoutError:
+                    pass  # Página sigue activa pero ya no crece — aceptable
+ 
+                final_height: int = await page.evaluate("document.body.scrollHeight")
+                if final_height == last_height:
+                    logger.debug("Scroll completado — página estable")
+                    break
+                # Creció durante la espera — reiniciar contador y continuar
+                stable_count = 0
+                last_height = final_height
+                continue
+ 
+            await _random_sleep(*retry_wait_ms)
+        else:
+            stable_count = 0  # Creció — resetear contador
+            last_height = new_height
 
 
 # ---------------------------------------------------------------------------
@@ -302,7 +358,9 @@ class GoogleScrapingService:
                 "--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
                 "--disable-dev-shm-usage",
-            ],
+                "--lang=es-ES",
+                "--accept-lang=es-ES,es;q=0.9",
+            ]
         )
         logger.info("Browser iniciado")
         return self
@@ -328,6 +386,48 @@ class GoogleScrapingService:
                 self._context = None
                 self._page = None
 
+    async def block_images_async(
+        self,
+        context: "BrowserContext",
+        url_pattern: str | None = None,
+        log_blocked: bool = False,
+    ) -> None:
+        """
+        Registra interceptor de imágenes a nivel de BrowserContext.
+
+        Al registrarlo en el contexto (no en una Page individual), aplica
+        automáticamente a todas las páginas que se abran dentro de él,
+        incluidas las creadas después de esta llamada.
+
+        CORRECCIÓN: el parámetro era ``page: Page``; en run_scraper.py se
+        pasa un ``BrowserContext``. Playwright acepta ``.route()`` en ambos,
+        pero la semántica correcta aquí es nivel contexto.
+
+        Args:
+            context:     Contexto de Playwright activo.
+            url_pattern: Si se proporciona, solo bloquea imágenes cuya URL
+                         contenga este patrón. None = bloquear todas.
+            log_blocked: Si True, loguea las URLs bloqueadas (debug).
+        """
+        async def handle_route(route: Route) -> None:
+            try:
+                if route.request.resource_type == "image":
+                    if url_pattern is None or url_pattern in route.request.url:
+                        if log_blocked:
+                            logger.debug("Bloqueada imagen: %s", route.request.url)
+                        await route.abort()
+                        return
+                await route.continue_()
+            except Exception as exc:
+                logger.debug("Error en route handler: %s", exc)
+                try:
+                    await route.continue_()
+                except Exception:
+                    pass
+
+        await context.route("**/*", handle_route)
+        logger.debug("Interceptor de imágenes registrado en contexto.")
+
     async def _new_context(self) -> Page:
         """
         Crea un contexto limpio con fingerprint aleatorio y devuelve la página.
@@ -346,6 +446,17 @@ class GoogleScrapingService:
             },
         )
         await self._context.add_init_script(_ANTI_DETECTION_SCRIPT)
+        # Suprime el banner de traducción a nivel de preferencias del perfil.
+        # Chrome consulta window.navigator.language y las prefs antes de
+        # mostrar el prompt — forzarlas a es-ES elimina el trigger.
+        await self._context.add_init_script("""
+            Object.defineProperty(navigator, 'language',  {get: () => 'es-ES'});
+            Object.defineProperty(navigator, 'languages', {get: () => ['es-ES', 'es']});
+        """)        
+        await self.block_images_async(
+            self._context,
+            url_pattern="https://encrypted-tbn0.gstatic.com/images",
+        )
         self._page = await self._context.new_page()
         return self._page
 
@@ -642,12 +753,60 @@ class GoogleScrapingService:
 
         return len(urls)
 
+    async def _wait_for_tab_content(self, page: Page, tab_name: TabName) -> bool:
+        """
+        Espera a que el contenido real del tab esté renderizado.
+ 
+        Comprueba selectores conocidos de Google con reintentos para tolerar
+        conexiones lentas. No lanza excepción: devuelve False si agota los
+        intentos, dejando la decisión al caller.
+ 
+        Args:
+            page:     Página activa tras hacer click en el tab.
+            tab_name: Tab que se acaba de activar (solo para logging).
+ 
+        Returns:
+            True si se detectó contenido, False si se agotaron los reintentos.
+        """
+        combined_selector = ", ".join(_RESULT_CONTENT_SELECTORS)
+ 
+        for attempt in range(1, _CONTENT_READY_RETRIES + 1):
+            try:
+                await page.wait_for_selector(
+                    combined_selector,
+                    state="attached",
+                    timeout=_CONTENT_READY_TIMEOUT_MS,
+                )
+                logger.debug(
+                    "Tab '%s' con contenido listo (intento %d/%d)",
+                    tab_name, attempt, _CONTENT_READY_RETRIES,
+                )
+                return True
+            except PlaywrightTimeoutError:
+                logger.warning(
+                    "Tab '%s' sin contenido visible (intento %d/%d) — reintentando...",
+                    tab_name, attempt, _CONTENT_READY_RETRIES,
+                )
+                if attempt < _CONTENT_READY_RETRIES:
+                    # Pausa progresiva: cada reintento espera un poco más
+                    await asyncio.sleep(attempt * 1.5)
+ 
+        logger.error(
+            "Tab '%s' no mostró contenido tras %d intentos — se procesará como vacío",
+            tab_name, _CONTENT_READY_RETRIES,
+        )
+        return False
+ 
     async def _click_tab(self, page: Page, tab_name: TabName) -> bool:
         """
-        Click físico en el tab usando texto parcial sin tildes problemáticas.
-
+        Click físico en el tab y espera a que el contenido esté renderizado.
+ 
+        Combina ``networkidle`` (red calmada) con ``_wait_for_tab_content``
+        (elementos visibles), cubriendo el caso de conexiones lentas donde
+        networkidle se resuelve antes de que el DOM esté poblado.
+ 
         Returns:
-            True si el tab fue activado correctamente.
+            True si el tab fue activado y tiene contenido, False en caso contrario.
         """
         partial_text = _TAB_PARTIAL_TEXT.get(tab_name, tab_name.value)
         try:
@@ -659,17 +818,38 @@ class GoogleScrapingService:
             await tab_element.scroll_into_view_if_needed()
             await _random_sleep(200, 400)
             await tab_element.click()
-            await page.wait_for_load_state("networkidle", timeout=NAVIGATION_TIMEOUT_MS)
+ 
+            # Esperar red calmada — primer nivel de espera
+            try:
+                await page.wait_for_load_state("networkidle", timeout=NAVIGATION_TIMEOUT_MS)
+            except PlaywrightTimeoutError:
+                # Red nunca se calmó del todo — continuamos igualmente
+                # y dejamos que _wait_for_tab_content determine si hay datos
+                logger.warning(
+                    "Tab '%s': networkidle timeout — verificando contenido igualmente",
+                    tab_name,
+                )
+ 
             await _random_sleep(*PAGE_LOAD_PAUSE_MS)
-            logger.info("Tab '%s' activado", tab_name)
+ 
+            # Segundo nivel: confirmar que hay resultados reales en el DOM
+            content_ready = await self._wait_for_tab_content(page, tab_name)
+            if content_ready:
+                logger.info("Tab '%s' activado y con contenido", tab_name)
+            else:
+                logger.warning("Tab '%s' activado pero sin contenido detectable", tab_name)
+ 
+            # Devolvemos True incluso sin contenido: el tab se activó correctamente.
+            # _collect_* retornará 0 URLs y se logueará — nunca bloqueamos el flujo.
             return True
+ 
         except PlaywrightTimeoutError:
             logger.warning("Timeout activando tab '%s' — saltando", tab_name)
             return False
         except Exception as exc:
             logger.error("Error haciendo click en tab '%s': %s", tab_name, exc)
             return False
-
+        
     # ------------------------------------------------------------------
     # Orquestador de tabs
     # ------------------------------------------------------------------
@@ -691,7 +871,7 @@ class GoogleScrapingService:
         except Exception as exc:
             logger.error("[Tab: %s] Error inesperado: %s", TabName.TODO, exc)
 
-        for tab in _TAB_SEQUENCE:
+        for tab in random.sample(_TAB_SEQUENCE, len(_TAB_SEQUENCE)):
             logger.info("[Tab: %s]", tab)
             try:
                 activated = await self._click_tab(page, tab)
