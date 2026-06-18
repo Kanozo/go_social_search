@@ -183,6 +183,33 @@ class KeywordRepository:
 
         return await self.get_by_id(row_id)
 
+    async def get_keywords_by_date_range(
+        self, 
+        start_date: datetime, 
+        end_date: datetime
+    ) -> list[Keyword]:
+        """
+        Obtiene keywords que fueron scrapeadas dentro de un rango de fechas.
+        
+        Args:
+            start_date: Fecha/hora de inicio (timezone-aware UTC).
+            end_date: Fecha/hora de fin (timezone-aware UTC).
+            
+        Returns:
+            Lista de objetos Keyword.
+        """
+        start_iso = _to_iso(start_date)
+        end_iso = _to_iso(end_date)
+        
+        query = """
+            SELECT * FROM keywords 
+            WHERE last_scrap >= ? AND last_scrap <= ?
+            ORDER BY last_scrap DESC
+        """
+        
+        rows = await self._db.execute_fetchall(query, (start_iso, end_iso))
+        return [_row_to_keyword(r) for r in rows]
+    
     async def mark_scraped(self, keyword: str) -> bool:
         """
         Actualiza ``last_scrap`` al momento UTC actual para el keyword dado.

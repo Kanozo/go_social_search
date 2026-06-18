@@ -161,15 +161,15 @@ async def human_click(
 
     if box and move_first:
         # Click en un punto aleatorio dentro del elemento (no siempre el centro)
-        target_x = box["x"] + box["width"] * random.uniform(0.25, 0.75)
-        target_y = box["y"] + box["height"] * random.uniform(0.25, 0.75)
+        target_x = box["x"] + box["width"] * random.uniform(0.10, 0.60)
+        target_y = box["y"] + box["height"] * random.uniform(0.10, 0.60)
         await human_move_to(page, target_x, target_y)
 
     # Micro-pausa antes del click (el humano "apunta" antes de presionar)
-    await micro_delay(80, 200)
+    await micro_delay(20, 100)
     await element.click()
     # Micro-pausa post-click (reacción natural)
-    await micro_delay(50, 150)
+    await micro_delay(5, 15)
 
 
 async def human_type(
@@ -196,7 +196,8 @@ async def human_type(
     """
     element = page.locator(selector).first
     await element.wait_for(state="visible", timeout=8_000)
-    await human_click(page, selector)
+    
+    await element.click()
 
     if clear_first:
         await page.keyboard.press("Control+a")
@@ -204,7 +205,7 @@ async def human_type(
         await page.keyboard.press("Delete")
         await asyncio.sleep(0.1)
 
-    target_wpm = wpm or random.randint(65, 115)
+    target_wpm = wpm or random.randint(5, 20)
     # Delay base por caracter (asumiendo 5 chars/palabra)
     base_delay = 60.0 / (target_wpm * 5)
 
@@ -283,7 +284,7 @@ async def human_scroll_to_element(page: "Page", selector: str) -> None:
     """
     element = page.locator(selector).first
     await element.scroll_into_view_if_needed()
-    await micro_delay(200, 500)
+    await micro_delay(100, 300)
     box = await element.bounding_box()
     if box:
         await human_move_to(
@@ -339,7 +340,7 @@ async def simulate_reading_pause(page: "Page", words_estimate: int = 50) -> None
         page:           Página de Playwright activa.
         words_estimate: Estimación de palabras en el contenido visible.
     """
-    reading_wpm = random.gauss(250, 40)  # 250 WPM ± 40 (humano promedio)
+    reading_wpm = random.gauss(200, 40)  # 250 WPM ± 40 (humano promedio)
     reading_seconds = max(1.0, (words_estimate / reading_wpm) * 60)
     logger.debug("Simulating reading pause: %.1fs for ~%d words", reading_seconds, words_estimate)
     await simulate_idle(page, reading_seconds)
@@ -367,7 +368,7 @@ async def simulate_distraction(page: "Page") -> None:
     spot_x, spot_y = random.choice(distraction_spots)
     await page.mouse.move(spot_x, spot_y)
     # "Olvida" qué estaba haciendo por 0.5-3 segundos
-    await asyncio.sleep(random.uniform(0.5, 3.0))
+    await asyncio.sleep(random.uniform(0.3, 1.0))
 
 
 async def simulate_page_focus_blur(page: "Page") -> None:

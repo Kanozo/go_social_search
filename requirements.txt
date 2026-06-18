@@ -24,3 +24,5 @@ telethon>=1.43.2
 httpx>=0.28.1
 aiosqlite>=0.20.0
 pysocks>=1.7.1
+camoufox>=0.1.0
+supabase>=2.0.0

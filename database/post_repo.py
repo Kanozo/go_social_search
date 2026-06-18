@@ -173,6 +173,38 @@ class PostRepository:
                 (_to_iso(datetime.now(timezone.utc)), url),
             )
             return cursor.rowcount > 0
+        
+    async def get_posts_by_date_range(
+        self, 
+        start_date: datetime, 
+        end_date: datetime, 
+        platform: str | None = None
+    ) -> list[Post]:
+        """
+        Obtiene posts dentro de un rango de fechas basado en `scrapt_at`.
+        
+        Args:
+            start_date: Fecha/hora de inicio (timezone-aware UTC recomendado).
+            end_date: Fecha/hora de fin (timezone-aware UTC recomendado).
+            platform: Filtro opcional por plataforma.
+            
+        Returns:
+            Lista de objetos Post ordenados por scrapt_at descendente.
+        """
+        start_iso = _to_iso(start_date)
+        end_iso = _to_iso(end_date)
+        
+        platform_clause = "AND platform = ?" if platform else ""
+        params: tuple = (start_iso, end_iso, platform) if platform else (start_iso, end_iso)
+        
+        query = f"""
+            SELECT * FROM posts 
+            WHERE scrapt_at >= ? AND scrapt_at <= ? {platform_clause}
+            ORDER BY scrapt_at DESC
+        """
+        
+        rows = await self._db.execute_fetchall(query, params)
+        return [_row_to_post(r) for r in rows]
 
     async def mark_sent(self, url: str) -> bool:
         """
