@@ -32,3 +32,4 @@ toDoList.md
 url_scraper*
 *.log
 config.ini
+sessions/*

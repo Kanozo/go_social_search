@@ -118,6 +118,24 @@ _FALLBACK_ENGINES: list[dict] = [
     },
 ]
 
+import platform
+import subprocess
+
+def kill_browser_processes() -> None:
+    """Mata procesos huérfanos del navegador en Linux."""
+    try:
+        subprocess.run(
+            ["pkill", "-f", "camoufox"],
+            capture_output=True,
+            timeout=5,
+        )
+        subprocess.run(
+            ["pkill", "-f", "firefox"],
+            capture_output=True,
+            timeout=5,
+        )
+    except Exception:
+        pass
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ScraperOrchestrator
@@ -466,6 +484,8 @@ class ScraperOrchestrator:
         )
         return new_context, new_page, new_fp
 
+    # ─── _switch_browser_visibility completo ───
+
     async def _switch_browser_visibility(
         self,
         old_camoufox: AsyncCamoufox,
@@ -479,22 +499,6 @@ class ScraperOrchestrator:
     ) -> tuple[AsyncCamoufox, Browser, BrowserContext, Page]:
         """
         Cambia la visibilidad del browser preservando fingerprint y sesión.
-
-        CAMOUFOX: Lanza un nuevo AsyncCamoufox con el modo cambiado.
-        El aislamiento de perfiles es automático.
-
-        Args:
-            old_camoufox: Instancia anterior de AsyncCamoufox.
-            old_browser:  Browser anterior.
-            old_context:  Contexto anterior.
-            automator:    Instancia de GoogleCSEAutomator.
-            fingerprint:  Fingerprint a preservar.
-            label:        Label del filtro (para logs).
-            new_headless: True para volver a headless, False para visible.
-            captcha_url:  URL del CAPTCHA para navegar tras abrir visible.
-
-        Returns:
-            Tupla ``(new_camoufox, new_browser, new_context, new_page)``.
         """
         from_mode = "HEADLESS" if not new_headless else "VISIBLE"
         to_mode   = "VISIBLE"  if not new_headless else "HEADLESS"
@@ -506,10 +510,11 @@ class ScraperOrchestrator:
         # 1. Guardar estado de sesión antes de cerrar
         storage_state = await self._save_context_state(old_context)
 
-        # 2. Cerrar recursos del browser antiguo
+        # 2. Cerrar TODO en orden
         for resource in (old_context, old_browser):
             try:
                 await resource.close()
+                await asyncio.sleep(0.3)
             except Exception:
                 pass
 
@@ -518,21 +523,30 @@ class ScraperOrchestrator:
         except Exception:
             pass
 
-        # 3. Determinar OS del fingerprint (mantener coherencia)
+        # 3. Forzar cierre de procesos huérfanos
+        await asyncio.sleep(1)
+        kill_browser_processes()
+        await asyncio.sleep(1)
+
+        # 4. Determinar OS del fingerprint
         camoufox_os = self._map_platform_to_camoufox_os(fingerprint.navigator_platform)
 
-        # 4. Lanzar nuevo Camoufox con modo cambiado y mismo OS
+        # 5. Lanzar nuevo Camoufox
         camoufox_params: dict = {
             "headless": new_headless,
             "humanize": settings.CAMOUFOX_HUMANIZE,
-            "geoip":    settings.CAMOUFOX_GEOIP,
-            "os":       camoufox_os,
+            "geoip": settings.CAMOUFOX_GEOIP,
+            "os": camoufox_os,
         }
+
+        from utils.proxy_manager import proxy_manager
+        if proxy_manager.is_enabled:
+            camoufox_params["proxy"] = proxy_manager.playwright_proxy
 
         new_camoufox = AsyncCamoufox(**camoufox_params)
         new_browser = await new_camoufox.__aenter__()
 
-        # 5. Crear contexto con mismo fingerprint + sesión restaurada
+        # 6. Crear contexto con mismo fingerprint + sesión restaurada
         new_context, new_page = await self._create_context_and_page(
             browser=new_browser,
             automator=automator,
@@ -542,13 +556,10 @@ class ScraperOrchestrator:
             skip_warmup=True,
         )
 
-        # 6. Navegar a la URL del CAPTCHA en el nuevo browser visible
+        # 7. Navegar a la URL del CAPTCHA
         if not new_headless and captcha_url:
             try:
-                logger.info(
-                    "[%s] Navegando a URL del CAPTCHA: %s",
-                    label, captcha_url,
-                )
+                logger.info("[%s] Navegando a URL del CAPTCHA: %s", label, captcha_url)
                 await new_page.goto(
                     captcha_url,
                     wait_until="domcontentloaded",
@@ -556,12 +567,11 @@ class ScraperOrchestrator:
                 )
             except Exception as nav_exc:
                 logger.warning(
-                    "[%s] No se pudo navegar a '%s': %s. "
-                    "El usuario verá la sesión restaurada.",
+                    "[%s] No se pudo navegar a '%s': %s",
                     label, captcha_url, nav_exc,
                 )
 
-        # 7. Inyectar banner de notificación
+        # 8. Inyectar banner de notificación
         if not new_headless:
             try:
                 await new_page.evaluate("""
@@ -589,40 +599,26 @@ class ScraperOrchestrator:
                 label,
             )
 
-        return new_camoufox, new_browser, new_context, new_page
+        return new_camoufox, new_browser, new_context, new_page    
 
-    async def _wait_for_captcha_resolution(self, label: str) -> None:
+        
+    # ─── _wait_for_captcha_resolution completo ───
+
+    async def _wait_for_captcha_resolution(self, label: str) -> bool:
         """
-        Espera a que el usuario resuelva el CAPTCHA manualmente.
+        Espera a que el usuario presione ENTER para resolver el CAPTCHA.
 
-        CORRECCIÓN CRÍTICA:
-          - Tiempo MÍNIMO de espera: 120 segundos (2 minutos)
-          - Si el usuario presiona ENTER antes de 120s, se ignora y sigue esperando
-          - Después de 120s, se acepta ENTER para continuar
-          - El navegador permanece visible todo el tiempo (sin recargas)
+        Tiene un timeout de 3 minutos (180 segundos).
+        Si el usuario presiona ENTER antes → retorna True.
+        Si se cumple el timeout sin respuesta → retorna False.
 
-        BUG FIX (multi-hilo): _captcha_input_lock es un asyncio.Lock() global.
-          - El primer hilo en adquirirlo pide ENTER al usuario normalmente.
-          - Los demás hilos NO esperan el lock bloqueados; comprueban si
-            pueden adquirirlo en tiempo 0 (acquire con timeout=0).
-          - Si no pueden, esperan su timeout silenciosamente sin tocar
-            la consola y continúan solos cuando expira.
-
-        Esto garantiza que nunca hay dos input() activos al mismo tiempo.
-
-        Args:
-            label: Label del filtro (para logs).
+        Returns:
+            True si el usuario resolvió el CAPTCHA, False si hubo timeout.
         """
-        MINIMUM_WAIT_SECONDS: int = 120  # MÍNIMO DURO DE 2 MINUTOS
-        timeout: int = getattr(settings, "CAPTCHA_MANUAL_TIMEOUT", 300)
-
-        # Asegurar que el timeout sea al menos el mínimo
-        effective_timeout = max(timeout, MINIMUM_WAIT_SECONDS)
-
+        CAPTCHA_TIMEOUT: int = 180  # 3 minutos
         loop = asyncio.get_running_loop()
         got_input_lock = False
 
-        # Intentar adquirir el lock de input sin bloquear
         if not _captcha_input_lock.locked():
             try:
                 got_input_lock = await asyncio.wait_for(
@@ -635,106 +631,75 @@ class ScraperOrchestrator:
         if got_input_lock:
             try:
                 logger.info(
-                    "[%s] ══ CAPTCHA DETECTADO ══\n"
-                    "    Tiempo mínimo de espera: %d segundos (%.1f minutos)\n"
-                    "    El navegador está VISIBLE. Resuelve el CAPTCHA.\n"
-                    "    NO presiones ENTER antes de que pasen %d segundos.",
+                    "[%s] ═══════════════════════════════════════",
                     label,
-                    MINIMUM_WAIT_SECONDS,
-                    MINIMUM_WAIT_SECONDS / 60,
-                    MINIMUM_WAIT_SECONDS,
                 )
-
-                start_time = loop.time()
-
-                # Fase 1: Esperar el tiempo MÍNIMO (120s) sin aceptar ENTER temprano
-                while (loop.time() - start_time) < MINIMUM_WAIT_SECONDS:
-                    remaining = MINIMUM_WAIT_SECONDS - int(loop.time() - start_time)
-
-                    # Usar input con timeout corto para mostrar cuenta regresiva
-                    try:
-                        await asyncio.wait_for(
-                            loop.run_in_executor(
-                                None,
-                                input,
-                                f"[{label}] ⏳ Faltan {remaining}s mínimos. "
-                                f"Resuelve el CAPTCHA pero NO presiones ENTER aún: ",
-                            ),
-                            timeout=1.0,
-                        )
-                        # Si llegó aquí, el usuario presionó ENTER antes del mínimo
-                        logger.warning(
-                            "[%s] ENTER presionado antes del mínimo de %ds. Ignorado. "
-                            "Sigue esperando...",
-                            label,
-                            MINIMUM_WAIT_SECONDS,
-                        )
-                    except asyncio.TimeoutError:
-                        # Timeout normal, continuar esperando
-                        pass
-                    except Exception:
-                        # Error de input, continuar
-                        await asyncio.sleep(1.0)
-
-                # Fase 2: Tiempo mínimo cumplido, ahora sí aceptar ENTER
                 logger.info(
-                    "[%s] ✅ Tiempo mínimo (%ds) cumplido. "
-                    "Presiona ENTER cuando hayas resuelto el CAPTCHA.",
+                    "[%s] 🔴 CAPTCHA - ESPERANDO RESOLUCIÓN MANUAL",
                     label,
-                    MINIMUM_WAIT_SECONDS,
+                )
+                logger.info(
+                    "[%s]    Tiempo máximo: %d segundos (%.0f minutos)",
+                    label,
+                    CAPTCHA_TIMEOUT,
+                    CAPTCHA_TIMEOUT / 60,
+                )
+                logger.info(
+                    "[%s]    Resuelve el CAPTCHA en el navegador visible.",
+                    label,
+                )
+                logger.info(
+                    "[%s]    Presiona ENTER en esta consola para continuar.",
+                    label,
+                )
+                logger.info(
+                    "[%s] ═══════════════════════════════════════",
+                    label,
                 )
 
-                # Esperar ENTER real (con timeout máximo configurable)
-                remaining_timeout = effective_timeout - MINIMUM_WAIT_SECONDS
-                if remaining_timeout > 0:
-                    try:
-                        await asyncio.wait_for(
-                            loop.run_in_executor(
-                                None,
-                                input,
-                                f"[{label}] Presiona ENTER para continuar "
-                                f"(timeout en {remaining_timeout}s): ",
-                            ),
-                            timeout=remaining_timeout,
-                        )
-                        logger.info("[%s] ENTER recibido. Continuando...", label)
-                    except asyncio.TimeoutError:
-                        logger.warning(
-                            "[%s] Timeout total (%ds) alcanzado. "
-                            "Continuando automáticamente...",
-                            label,
-                            effective_timeout,
-                        )
-                        GoogleCSEAutomator._play_alert_sound()
-                else:
-                    # Sin timeout adicional (espera indefinida)
+                user_responded = False
+
+                async def _wait_for_enter() -> None:
+                    nonlocal user_responded
                     await loop.run_in_executor(
                         None,
                         input,
-                        f"[{label}] Presiona ENTER para continuar: ",
+                        f"[{label}] >>> Presiona ENTER cuando hayas resuelto el CAPTCHA "
+                        f"(timeout en {CAPTCHA_TIMEOUT}s): ",
                     )
-                    logger.info("[%s] ENTER recibido. Continuando...", label)
+                    user_responded = True
+
+                try:
+                    await asyncio.wait_for(_wait_for_enter(), timeout=CAPTCHA_TIMEOUT)
+                    logger.info("[%s] ✅ ENTER presionado. CAPTCHA resuelto.", label)
+                    return True
+
+                except asyncio.TimeoutError:
+                    logger.warning(
+                        "[%s] ⏰ TIMEOUT (%ds) sin respuesta del usuario.",
+                        label,
+                        CAPTCHA_TIMEOUT,
+                    )
+                    logger.warning(
+                        "[%s] 🔄 Cerrando sesión y rotando identidad...",
+                        label,
+                    )
+                    GoogleCSEAutomator._play_alert_sound()
+                    return False
 
             finally:
                 _captcha_input_lock.release()
 
         else:
-            # Otro hilo ya tiene el turno de input → espera silenciosa
-            wait_secs = effective_timeout
             logger.warning(
-                "[%s] Otro filtro ya está esperando input del usuario. "
-                "Esperando %ds automáticamente antes de continuar...",
+                "[%s] Otro filtro está esperando input. Esperando %ds...",
                 label,
-                wait_secs,
+                CAPTCHA_TIMEOUT,
             )
-            await asyncio.sleep(wait_secs)
-            logger.info(
-                "[%s] Tiempo de espera automático agotado. Continuando...",
-                label,
-            )
-
-        logger.info("[%s] Continuando con el scraping...", label)
-
+            await asyncio.sleep(CAPTCHA_TIMEOUT)
+            logger.info("[%s] Continuando automáticamente (timeout secundario).", label)
+            return False
+        
     # ── Engine loop ───────────────────────────────────────────────────────────
 
     async def _run_engine_keywords(
@@ -834,67 +799,196 @@ class ScraperOrchestrator:
                                 label, kw_id,
                             )
 
+
+                    # ─── Bloque CaptchaError en _run_engine_keywords completo ───
+
                     except CaptchaError as captcha_exc:
                         logger.warning(
-                            "[%s] CAPTCHA irresuelto (signal=%s) en '%s'.",
+                            "[%s] ═══════════════════════════════════════",
+                            label,
+                        )
+                        logger.warning(
+                            "[%s] ⚠ CAPTCHA DETECTADO (signal=%s) en '%s'",
                             label, captcha_exc.signal, kw,
+                        )
+                        logger.warning(
+                            "[%s] ═══════════════════════════════════════",
+                            label,
                         )
                         GoogleCSEAutomator._play_alert_sound()
 
-                        # Capturar URL actual ANTES de cerrar el browser headless
                         captcha_url: str = ""
                         try:
                             captcha_url = page.url
-                            logger.debug(
-                                "[%s] URL del CAPTCHA capturada: %s",
-                                label, captcha_url,
-                            )
+                            logger.info("[%s] URL del CAPTCHA: %s", label, captcha_url[:100])
                         except Exception:
                             pass
 
-                        if (
-                            getattr(settings, "BROWSER_VISIBLE_ON_CAPTCHA", True)
-                            and self._current_headless
-                        ):
-                            # Cambiar a visible
-                            (
-                                camoufox_instance,
-                                browser,
-                                context,
-                                page,
-                            ) = await self._switch_browser_visibility(
-                                old_camoufox=camoufox_instance,
-                                old_browser=browser,
-                                old_context=context,
-                                automator=automator,
-                                fingerprint=fingerprint,
-                                label=label,
-                                new_headless=False,
-                                captcha_url=captcha_url,
-                            )
-                            self._current_headless = False
+                        was_headless = self._current_headless
 
-                            # Esperar resolución manual (mínimo 120s)
-                            await self._wait_for_captcha_resolution(label)
+                        if getattr(settings, "BROWSER_VISIBLE_ON_CAPTCHA", True):
+                            if was_headless:
+                                logger.info(
+                                    "[%s] Cambiando a navegador VISIBLE para resolver CAPTCHA...",
+                                    label,
+                                )
+                                (
+                                    camoufox_instance,
+                                    browser,
+                                    context,
+                                    page,
+                                ) = await self._switch_browser_visibility(
+                                    old_camoufox=camoufox_instance,
+                                    old_browser=browser,
+                                    old_context=context,
+                                    automator=automator,
+                                    fingerprint=fingerprint,
+                                    label=label,
+                                    new_headless=False,
+                                    captcha_url=captcha_url,
+                                )
+                                self._current_headless = False
+                            else:
+                                logger.info(
+                                    "[%s] Navegador ya visible. Navegando a URL del CAPTCHA...",
+                                    label,
+                                )
+                                if captcha_url:
+                                    try:
+                                        await page.goto(
+                                            captcha_url,
+                                            wait_until="domcontentloaded",
+                                            timeout=20_000,
+                                        )
+                                    except Exception:
+                                        pass
 
                             logger.info(
-                                "[%s] Reintentando '%s' con navegador visible…",
-                                label, kw,
+                                "[%s] ⏳ Esperando resolución manual del CAPTCHA (máx 3min)...",
+                                label,
                             )
-                            try:
-                                await automator.run_keyword(page, kw, total_pages)
+                            resolved = await self._wait_for_captcha_resolution(label)
 
-                                # Marcar como scrapeada en Supabase
-                                if self._db and self._db.keyword_repo:
-                                    await self._db.keyword_repo.mark_scraped(kw_id)
+                            if resolved:
+                                logger.info(
+                                    "[%s] ✅ CAPTCHA resuelto. Reintentando '%s'...",
+                                    label, kw,
+                                )
+                                try:
+                                    await automator.run_keyword(page, kw, total_pages)
+                                    if self._db and self._db.keyword_repo:
+                                        await self._db.keyword_repo.mark_scraped(kw_id)
+                                except CaptchaError:
+                                    logger.error(
+                                        "[%s] ❌ CAPTCHA persiste después de resolución manual.",
+                                        label,
+                                    )
+                                except Exception as retry_exc:
+                                    logger.error(
+                                        "[%s] Fallo en reintento post-CAPTCHA: %s",
+                                        label, retry_exc,
+                                    )
 
-                            except Exception as retry_exc:
-                                logger.error(
-                                    "[%s] Fallo en reintento post-CAPTCHA '%s': %s",
-                                    label, kw, retry_exc, exc_info=True,
+                            else:
+                                logger.warning(
+                                    "[%s] ⏰ Timeout de 3 minutos sin resolver CAPTCHA.",
+                                    label,
+                                )
+                                logger.warning(
+                                    "[%s] 🔄 Cerrando navegador y creando NUEVA sesión...",
+                                    label,
                                 )
 
-                            if getattr(settings, "HEADLESS_AFTER_CAPTCHA", False):
+                                # ── CERRAR TODO ORDENADAMENTE ──
+                                if page:
+                                    try:
+                                        await page.close()
+                                        logger.debug("[%s] Página cerrada.", label)
+                                    except Exception as exc:
+                                        logger.debug("[%s] Error cerrando página: %s", label, exc)
+
+                                if context:
+                                    try:
+                                        await context.close()
+                                        logger.debug("[%s] Contexto cerrado.", label)
+                                    except Exception as exc:
+                                        logger.debug("[%s] Error cerrando contexto: %s", label, exc)
+
+                                if browser:
+                                    try:
+                                        await browser.close()
+                                        logger.debug("[%s] Browser cerrado.", label)
+                                    except Exception as exc:
+                                        logger.debug("[%s] Error cerrando browser: %s", label, exc)
+
+                                if camoufox_instance:
+                                    try:
+                                        await camoufox_instance.__aexit__(None, None, None)
+                                        logger.debug("[%s] Camoufox cerrado.", label)
+                                    except Exception as exc:
+                                        logger.debug("[%s] Error cerrando Camoufox: %s", label, exc)
+
+                                # Esperar liberación de recursos
+                                await asyncio.sleep(2)
+
+                                # Matar procesos huérfanos
+                                kill_browser_processes()
+
+                                logger.info(
+                                    "[%s] 🆕 Creando NUEVA sesión con nueva identidad...",
+                                    label,
+                                )
+
+                                # Generar NUEVO fingerprint
+                                fingerprint = generate_fingerprint("firefox")
+                                camoufox_os = self._map_platform_to_camoufox_os(
+                                    fingerprint.navigator_platform
+                                )
+
+                                logger.info(
+                                    "[%s] Nueva identidad | OS=%s | UA=%s...",
+                                    label,
+                                    fingerprint.navigator_platform,
+                                    fingerprint.user_agent[:50],
+                                )
+
+                                # Lanzar NUEVO Camoufox
+                                camoufox_instance, browser = await self._launch_camoufox(
+                                    headless=self._current_headless,
+                                    label=label,
+                                    camoufox_os=camoufox_os,
+                                )
+
+                                # Crear nuevo contexto y página
+                                context, page = await self._create_context_and_page(
+                                    browser=browser,
+                                    automator=automator,
+                                    fingerprint=fingerprint,
+                                )
+
+                                logger.info(
+                                    "[%s] 🔄 Nueva sesión creada. Reintentando '%s'...",
+                                    label, kw,
+                                )
+
+                                try:
+                                    await automator.run_keyword(page, kw, total_pages)
+                                    if self._db and self._db.keyword_repo:
+                                        await self._db.keyword_repo.mark_scraped(kw_id)
+                                except CaptchaError:
+                                    logger.error(
+                                        "[%s] ❌ CAPTCHA persiste con nueva sesión. Saltando keyword.",
+                                        label,
+                                    )
+                                except Exception as retry_exc:
+                                    logger.error(
+                                        "[%s] Fallo en reintento con nueva sesión: %s",
+                                        label, retry_exc,
+                                    )
+
+                            # Volver a headless si estaba configurado
+                            if was_headless and resolved and getattr(settings, "HEADLESS_AFTER_CAPTCHA", False):
+                                logger.info("[%s] Volviendo a modo headless...", label)
                                 (
                                     camoufox_instance,
                                     browser,
@@ -910,12 +1004,10 @@ class ScraperOrchestrator:
                                     new_headless=True,
                                 )
                                 self._current_headless = True
-                                logger.info("[%s] Volviendo a modo headless.", label)
 
                         else:
-                            # Rotar identidad sin cambio de visibilidad
                             logger.info(
-                                "[%s] Rotando identidad (sin cambio de visibilidad)…",
+                                "[%s] Rotando identidad (sin cambio de visibilidad)...",
                                 label,
                             )
                             context, page, fingerprint = await self._rotate_identity(
@@ -924,19 +1016,18 @@ class ScraperOrchestrator:
                                 old_context=context,
                                 label=label,
                             )
-                            logger.info("[%s] Reintentando '%s'…", label, kw)
+                            logger.info("[%s] Reintentando '%s'...", label, kw)
                             try:
                                 await automator.run_keyword(page, kw, total_pages)
-
-                                # Marcar como scrapeada en Supabase
                                 if self._db and self._db.keyword_repo:
                                     await self._db.keyword_repo.mark_scraped(kw_id)
-
                             except Exception as retry_exc:
                                 logger.error(
-                                    "[%s] Fallo en reintento post-rotación '%s': %s",
-                                    label, kw, retry_exc, exc_info=True,
+                                    "[%s] Fallo en reintento: %s",
+                                    label, retry_exc,
                                 )
+
+
 
                     except Exception as generic_exc:
                         logger.error(
