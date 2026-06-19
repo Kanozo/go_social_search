@@ -29,8 +29,6 @@ logger = logging.getLogger(__name__)
 class SupabaseKeywordRepo:
     """
     Repositorio de keywords en Supabase.
-
-    Reemplaza KeywordRepository de SQLite.
     """
 
     def __init__(self, client: Client) -> None:
@@ -38,57 +36,54 @@ class SupabaseKeywordRepo:
 
     async def claim_keywords(
         self,
-        label: str,
+        label: str | None = None,
         limit: int = 10,
     ) -> list[KeywordClaimResult]:
         """
         Reclama keywords para scraping con bloqueo atómico.
 
-        Lógica:
-          1. Selecciona las `limit` keywords más antiguas (por scraped_at)
-             para el `label` dado, que NO estén siendo scrapeadas (scraping=false).
-          2. Las marca scraping=true en la misma transacción.
-          3. Retorna las keywords reclamadas.
-
-        Si otro worker intenta reclamar las mismas keywords, las encontrará
-        con scraping=true y las saltará.
+        - Si label es None: toma las 10 keywords más antiguas de cualquier label
+        - Si label tiene valor: toma las 10 más antiguas de ese label
 
         Args:
-            label: Label del engine (ej: "KW FB", "KW IG").
-            limit: Máximo de keywords a reclamar (default 10).
+            label: Label del engine o None para todos.
+            limit: Máximo de keywords a reclamar.
 
         Returns:
             Lista de KeywordClaimResult con las keywords reclamadas.
         """
         try:
-            # Paso 1: Seleccionar keywords disponibles
-            select_response = (
+            query = (
                 self._client.table("keyword")
                 .select("id, keyword, platform, engine, label")
-                .eq("label", label)
                 .eq("scraping", False)
                 .order("scraped_at", desc=False)  # Más antiguas primero
                 .limit(limit)
-                .execute()
             )
+
+            # Solo filtrar por label si se especifica
+            if label is not None:
+                query = query.eq("label", label)
+
+            select_response = query.execute()
 
             rows = select_response.data or []
             if not rows:
-                logger.debug("No hay keywords disponibles para label='%s'", label)
+                label_msg = f"label='{label}'" if label else "todos los labels"
+                logger.debug("No hay keywords disponibles para %s", label_msg)
                 return []
 
-            # Paso 2: Marcar como scraping=true atómicamente
+            # Marcar como scraping=true
             keyword_ids = [row["id"] for row in rows]
-            now_iso = datetime.now(timezone.utc).isoformat()
 
             self._client.table("keyword").update({
                 "scraping": True,
             }).in_("id", keyword_ids).execute()
 
             logger.info(
-                "Reclamadas %d keywords para label='%s'",
+                "Reclamadas %d keywords para %s",
                 len(keyword_ids),
-                label,
+                f"label='{label}'" if label else "todos los labels",
             )
 
             return [
@@ -97,27 +92,18 @@ class SupabaseKeywordRepo:
                     keyword=row["keyword"],
                     platform=row["platform"],
                     engine=row.get("engine", ""),
-                    label=row.get("label", label),
+                    label=row.get("label", label or ""),
                 )
                 for row in rows
                 if row.get("keyword")
             ]
 
         except Exception as exc:
-            logger.error(
-                "Error reclamando keywords para label='%s': %s",
-                label,
-                exc,
-            )
+            logger.error("Error reclamando keywords: %s", exc)
             return []
-        
-    async def get_distinct_labels(self) -> list[str]:
-        """
-        Obtiene todos los labels distintos de la tabla keyword.
 
-        Returns:
-            Lista de labels únicos ordenados alfabéticamente.
-        """
+    async def get_distinct_labels(self) -> list[str]:
+        """Obtiene todos los labels distintos."""
         try:
             response = (
                 self._client.table("keyword")
@@ -126,7 +112,6 @@ class SupabaseKeywordRepo:
             )
 
             rows = response.data or []
-            # Extraer labels únicos
             labels = list({
                 row["label"]
                 for row in rows
@@ -134,28 +119,17 @@ class SupabaseKeywordRepo:
             })
             labels.sort()
 
-            logger.debug(
-                "Labels distintos en Supabase: %s",
-                labels,
-            )
+            logger.debug("Labels distintos en Supabase: %s", labels)
             return labels
 
         except Exception as exc:
-            logger.error("Error obteniendo labels distintos: %s", exc)
+            logger.error("Error obteniendo labels: %s", exc)
             return []
 
     async def mark_scraped(self, keyword_id: int) -> bool:
         """
         Marca una keyword como scrapeada.
-
         Actualiza scraped_at a now() y pone scraping=false.
-        Esto libera la keyword para futuros ciclos.
-
-        Args:
-            keyword_id: ID de la keyword en Supabase.
-
-        Returns:
-            True si se actualizó correctamente.
         """
         try:
             now_iso = datetime.now(timezone.utc).isoformat()
@@ -174,29 +148,15 @@ class SupabaseKeywordRepo:
                 logger.debug("Keyword id=%d marcada como scrapeada.", keyword_id)
                 return True
 
-            logger.warning(
-                "No se pudo actualizar keyword id=%d (no encontrada).",
-                keyword_id,
-            )
+            logger.warning("No se pudo actualizar keyword id=%d.", keyword_id)
             return False
 
         except Exception as exc:
-            logger.error(
-                "Error marcando keyword id=%d como scrapeada: %s",
-                keyword_id,
-                exc,
-            )
+            logger.error("Error marcando keyword id=%d: %s", keyword_id, exc)
             return False
 
     async def release_keywords(self, keyword_ids: list[int]) -> None:
-        """
-        Libera keywords no completadas (scraping=false).
-
-        Útil para cleanup si el worker falla a mitad del ciclo.
-
-        Args:
-            keyword_ids: Lista de IDs a liberar.
-        """
+        """Libera keywords no completadas (scraping=false)."""
         if not keyword_ids:
             return
 
@@ -209,7 +169,6 @@ class SupabaseKeywordRepo:
 
         except Exception as exc:
             logger.error("Error liberando keywords: %s", exc)
-
 
 class SupabaseUrlRepo:
     """

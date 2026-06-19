@@ -135,6 +135,16 @@ _RELATIVE_TS_PATTERN: re.Pattern[str] = re.compile(
     re.IGNORECASE,
 )
 
+_FACEBOOK_URL_PATTERNS: tuple[str, ...] = (
+    "facebook.com",
+    "fb.com",
+    "fb.watch",
+    "instagram.com",
+)
+
+# Selector para la pestaña Image en los refinements
+_IMAGE_TAB_SELECTOR: str = 'div[aria-label="refinement"][role="tab"]:has-text("Image")'
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Tipos de datos
 # ─────────────────────────────────────────────────────────────────────────────
@@ -404,6 +414,24 @@ class GoogleCSEAutomator:
             
             # Pausa mínima: solo lo suficiente para que el DOM se actualice
             await asyncio.sleep(random.uniform(0.15, 0.35))
+
+    async def _unblock_images(self, context: BrowserContext) -> None:
+        """Elimina el interceptor de bloqueo de imágenes del contexto."""
+        try:
+            await context.unroute_all()
+            logger.debug("Bloqueo de imágenes eliminado.")
+        except Exception as exc:
+            logger.debug("Error al desbloquear imágenes: %s", exc)
+
+
+    async def _reblock_images(
+        self,
+        context: BrowserContext,
+        url_pattern: str = "https://encrypted-tbn0.gstatic.com/images",
+    ) -> None:
+        """Vuelve a registrar el interceptor de bloqueo de imágenes."""
+        await self.block_images_async(context, url_pattern=url_pattern, log_blocked=False)
+        logger.debug("Bloqueo de imágenes restaurado.")
 
     async def block_images_async(
         self,
@@ -762,6 +790,130 @@ class GoogleCSEAutomator:
         await CaptchaDetector.intercept_response_errors(page)
         logger.debug("Page setup: stealth + interceptor HTTP activos.")
 
+    async def _scrape_image_results(
+        self,
+        page: Page,
+        keyword: str,
+        total_pages: int = 3,
+    ) -> None:
+        """Scrapea URLs de FB/IG desde resultados de imágenes del CSE."""
+        context = page.context
+
+        # ── 1. Buscar pestaña Image ──────────────────────────────────────────
+        image_tab = page.locator('div[aria-label="refinement"][role="tab"]:has-text("Image")')
+        
+        try:
+            await image_tab.wait_for(state="visible", timeout=5_000)
+        except PlaywrightTimeoutError:
+            logger.debug("Pestaña 'Image' no encontrada. Saltando.")
+            return
+
+        class_attr = await image_tab.get_attribute("class") or ""
+        
+        if "gsc-tabhActive" not in class_attr:
+            logger.info("🖼 Cambiando a búsqueda por imágenes...")
+            await self._unblock_images(context)
+            await asyncio.sleep(0.5)
+            
+            try:
+                await image_tab.click(timeout=3_000)
+            except Exception:
+                await self._quick_move_and_click(page, image_tab)
+            
+            await asyncio.sleep(2.0)
+        else:
+            await self._unblock_images(context)
+            await asyncio.sleep(0.5)
+
+        # ── 2. Esperar previews ──────────────────────────────────────────────
+        try:
+            await page.wait_for_selector("a.gs-previewLink", state="attached", timeout=10_000)
+        except PlaywrightTimeoutError:
+            logger.warning("No se encontraron previews. Saltando.")
+            await self._reblock_images(context)
+            return
+
+        # ── 3. Procesar páginas (IGUAL que run_keyword) ──────────────────────
+        processed_urls: set[str] = set()
+        
+        for img_page in range(1, total_pages + 1):
+            logger.info("🖼 Página imágenes %d/%d | keyword='%s'", img_page, total_pages, keyword)
+            
+            # Extraer URLs de esta página
+            preview_links = page.locator("a.gs-previewLink")
+            link_count = await preview_links.count()
+            new_in_page = 0
+            
+            for i in range(link_count):
+                try:
+                    link = preview_links.nth(i)
+                    href = (await link.get_attribute("href") or "").strip()
+                    
+                    if not href or href in processed_urls:
+                        continue
+                    
+                    if not any(p in href for p in _FACEBOOK_URL_PATTERNS):
+                        continue
+                    
+                    url_clean = clean_url(href)
+                    if not url_clean:
+                        continue
+                    
+                    processed_urls.add(href)
+                    new_in_page += 1
+                    
+                    platform = self._platform or (
+                        "instagram" if "instagram" in url_clean else "facebook"
+                    )
+                    
+                    self._scraped_results.append(ScrapedResult(
+                        url=url_clean,
+                        platform=platform,
+                        published_at=None,
+                        published_at_raw=None,
+                    ))
+                    
+                except Exception as exc:
+                    logger.debug("[IMG] Error preview #%d: %s", i, exc)
+            
+            logger.info("[IMG] %d URLs nuevas en página %d.", new_in_page, img_page)
+            
+            # Persistir
+            if self._scraped_results:
+                await self._persist_results(keyword)
+                self._scraped_results.clear()
+            
+            # ── Navegar a siguiente página (IGUAL QUE EN WEB) ────────────────
+            await self._incremental_scroll(page)
+            
+            if img_page < total_pages:
+                await asyncio.sleep(random.uniform(0.2, 0.4))
+
+                next_btn = page.locator(
+                    ".gsc-cursor-page:not(.gsc-cursor-current-page)",
+                    has_text=str(img_page + 1),
+                ).first
+                if await next_btn.count() > 0:
+                    await next_btn.click(timeout=3_000)
+
+                    try:
+                        await page.wait_for_selector(
+                            f".gsc-cursor-current-page:has-text('{img_page + 1}')",
+                            timeout=8_000,
+                        )
+                    except PlaywrightTimeoutError:
+                        logger.warning("Página %d no confirmada.", img_page + 1)
+
+                    await asyncio.sleep(random.uniform(0.2, 0.4))
+                else:
+                    logger.debug("No hay página %d para '%s'.", img_page + 1, keyword)
+                    break
+
+        # ── Rebloquear ───────────────────────────────────────────────────────
+        await self._reblock_images(context)
+        
+        logger.info("[IMG] Total URLs únicas: %d | keyword='%s'", len(processed_urls), keyword)
+        
     async def run_keyword(
         self,
         page: Page,
@@ -771,11 +923,13 @@ class GoogleCSEAutomator:
         """
         Ejecuta la búsqueda completa de una keyword en el CSE.
 
+        Incluye búsqueda web normal + búsqueda de imágenes.
+
         OPTIMIZADO:
-          - Click directo en search box (sin movimiento de ratón previo)
-          - Sin delays entre click y type
-          - Waits selectivos en lugar de delays ciegos
-          - CAPTCHA espera mínimo 120s antes de continuar
+        - Click directo en search box (sin movimiento de ratón previo)
+        - Sin delays entre click y type
+        - Waits selectivos en lugar de delays ciegos
+        - CAPTCHA espera mínimo 120s antes de continuar
         """
         self._scraped_results.clear()
 
@@ -803,10 +957,8 @@ class GoogleCSEAutomator:
         # ── 3. Click DIRECTO + type INMEDIATO (sin delays) ─────────────────
         search_box = page.locator("input.gsc-input")
         
-        # Click directo sin movimiento de ratón (el foco va al input)
         await search_box.click(timeout=3_000)
         
-        # Escribir INMEDIATAMENTE después del click (sin asyncio.sleep)
         await human_type(
             page,
             "input.gsc-input",
@@ -815,7 +967,6 @@ class GoogleCSEAutomator:
             wpm=random.randint(80, 130)
         )
         
-        # Solo micro-pausa post-escritura (simula revisar lo escrito)
         await asyncio.sleep(random.uniform(0.2, 0.4))
         await page.keyboard.press("Enter")
 
@@ -839,7 +990,7 @@ class GoogleCSEAutomator:
         # ── 5. Aplicar filtro de fecha ──────────────────────────────────────
         await self._apply_date_filter(page)
 
-        # ── 6. Procesar páginas de resultados ───────────────────────────────
+        # ── 6. Procesar páginas de resultados normales ──────────────────────
         for current_p in range(1, total_pages + 1):
             logger.info(
                 "Página %d/%d | keyword='%s'",
@@ -856,7 +1007,6 @@ class GoogleCSEAutomator:
                 )
                 self._play_alert_sound()
 
-                # Fase 1: auto-solver rápido
                 auto_solved = await CaptchaAutosolver.try_solve_checkbox(
                     page=page,
                     keyword=keyword,
@@ -866,8 +1016,6 @@ class GoogleCSEAutomator:
                     logger.info("CAPTCHA resuelto automáticamente.")
                     await self._extract_page_results(page, keyword)
                 else:
-                    # Fase 2: esperar resolución manual (NO recargar)
-                    # La espera real ocurre en el orquestador
                     raise
 
             # Persistir resultados de esta página
@@ -876,18 +1024,15 @@ class GoogleCSEAutomator:
 
             # ── Navegación entre páginas ─────────────────────────────────
             if current_p < total_pages:
-                # Micro-pausa (sin simulate_reading_pause)
                 await asyncio.sleep(random.uniform(0.2, 0.4))
 
-                # Siguiente página (click directo)
                 next_btn = page.locator(
                     ".gsc-cursor-page:not(.gsc-cursor-current-page)",
                     has_text=str(current_p + 1),
-                )
-                if await next_btn.is_visible():
+                ).first
+                if await next_btn.count() > 0:
                     await next_btn.click(timeout=3_000)
 
-                    # Esperar a que la página cambie
                     try:
                         await page.wait_for_selector(
                             f".gsc-cursor-current-page:has-text('{current_p + 1}')",
@@ -907,7 +1052,17 @@ class GoogleCSEAutomator:
                     )
                     break
 
-        # ── 7. Post-keyword (muy bajo overhead) ────────────────────────────
-        if random.random() < 0.05:  # Solo 5% de probabilidad
-            logger.debug("Simulando distracción post-keyword.")
-            await simulate_distraction(page)
+        # ── 7. Búsqueda de imágenes ──────────────────────────────────────────
+        try:
+            await self._scrape_image_results(
+                page=page,
+                keyword=keyword,
+                total_pages=total_pages,
+            )
+        except CaptchaError:
+            raise
+        except Exception as exc:
+            logger.error(
+                "Error en búsqueda de imágenes para '%s': %s",
+                keyword, exc,
+            )

@@ -81,11 +81,11 @@ logger = logging.getLogger(__name__)
 # FILTERs a ejecutar concurrentemente
 # ─────────────────────────────────────────────────────────────────────────────
 FILTERS: list[str] | None = [
-    "KW FB",
-    "KW IG",
-    "FB CR General Kano",
-    "Kano Cluster CR",
-    "Especial",
+    # "Kano Cluster CR",
+    # "KW FB",
+    # "KW IG",
+    # "FB CR General Kano",    
+    # "Especial",
 ]
 MAX_CONCURRENT_BROWSERS: Final[int] = getattr(settings, "MAX_CONCURRENT_BROWSERS", 2)
 
@@ -193,84 +193,58 @@ class ScraperOrchestrator:
         """
         Obtiene la configuración de engines desde Supabase.
 
-        Si hay un FILTER específico, reclama keywords solo para ese label.
-        Si no hay FILTER (modo TODOS), obtiene todos los labels distintos
-        y reclama 10 keywords de cada uno.
-
-        Returns:
-            Lista de dicts con engine_id, label, platform, keywords y _keyword_ids.
+        Si hay FILTER → reclama keywords de ese label.
+        Si no hay FILTER → reclama las 10 keywords más antiguas de cualquier label.
         """
         if self._db is None or self._db.keyword_repo is None:
-            logger.warning(
-                "_fetch_engines_config: Supabase no inicializado. Usando fallback."
-            )
+            logger.warning("Supabase no inicializado. Usando fallback.")
             return _FALLBACK_ENGINES
 
-        # ── Determinar qué labels procesar ──────────────────────────────────
+        # ── Reclamar keywords ──────────────────────────────────────────────
         if self._filter_label:
-            # Modo filtro específico: solo ese label
-            labels_to_process = [self._filter_label]
-        else:
-            # Modo TODOS: obtener todos los labels distintos de Supabase
-            try:
-                all_labels = await self._db.keyword_repo.get_distinct_labels()
-                if not all_labels:
-                    logger.warning(
-                        "No se encontraron labels en Supabase. Usando fallback."
-                    )
-                    return _FALLBACK_ENGINES
-                labels_to_process = all_labels
-                logger.info(
-                    "Modo TODOS: %d labels encontrados en Supabase.",
-                    len(labels_to_process),
-                )
-            except Exception as exc:
-                logger.error(
-                    "Error obteniendo labels de Supabase: %s. Usando fallback.",
-                    exc,
-                )
-                return _FALLBACK_ENGINES
-
-        # ── Reclamar keywords para cada label ───────────────────────────────
-        engines_config = []
-
-        for label in labels_to_process:
+            # Con filtro: solo ese label
             claimed = await self._db.keyword_repo.claim_keywords(
-                label=label,
+                label=self._filter_label,
+                limit=10,
+            )
+        else:
+            # Sin filtro: las 10 más antiguas de cualquier label
+            claimed = await self._db.keyword_repo.claim_keywords(
+                label=None,
                 limit=10,
             )
 
-            if not claimed:
-                logger.info(
-                    "No hay keywords disponibles para label='%s'.",
-                    label,
-                )
-                continue
-
-            # Agrupar por label → engine
-            first = claimed[0]
-            keywords = [c.keyword for c in claimed]
-
-            engines_config.append({
-                "label": label,
-                "engine_id": first.engine,
-                "platform": first.platform,
-                "keywords": keywords,
-                "_keyword_ids": [c.id for c in claimed],
-            })
-
-            logger.info(
-                "[CONFIG] Label='%s' | %d keywords reclamadas | Engine=%s",
-                label,
-                len(keywords),
-                first.engine,
-            )
-
-        if not engines_config:
-            logger.warning(
-                "No se pudo reclamar keywords para ningún label. Usando fallback."
-            )
+        if not claimed:
+            logger.warning("No hay keywords disponibles.")
             return _FALLBACK_ENGINES
+
+        # Agrupar por label
+        engines_by_label: dict[str, dict] = {}
+
+        for kw in claimed:
+            lbl = kw.label or "sin_label"
+
+            if lbl not in engines_by_label:
+                engines_by_label[lbl] = {
+                    "label": lbl,
+                    "engine_id": kw.engine,
+                    "platform": kw.platform,
+                    "keywords": [],
+                    "_keyword_ids": [],
+                }
+
+            engines_by_label[lbl]["keywords"].append(kw.keyword)
+            engines_by_label[lbl]["_keyword_ids"].append(kw.id)
+
+        engines_config = list(engines_by_label.values())
+
+        for engine in engines_config:
+            logger.info(
+                "[CONFIG] Label='%s' | %d keywords | Engine=%s",
+                engine["label"],
+                len(engine["keywords"]),
+                engine["engine_id"],
+            )
 
         return engines_config
 
