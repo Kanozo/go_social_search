@@ -85,17 +85,13 @@ FILTERS: list[str] | None = [
     # "KW FB",
     # "KW IG",
     # "FB CR General Kano",    
-    # "Especial",
+    "Especial",
 ]
 MAX_CONCURRENT_BROWSERS: Final[int] = getattr(settings, "MAX_CONCURRENT_BROWSERS", 2)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Serialización de input() para entorno multi-hilo
 # ─────────────────────────────────────────────────────────────────────────────
-# Con múltiples filtros corriendo en paralelo, dos hilos pueden detectar CAPTCHA
-# al mismo tiempo y ambos intentar llamar input() → la terminal se corrompe.
-# Este Lock garantiza que solo UN hilo a la vez puede pedir ENTER al usuario.
-# El resto espera su propio timeout automático sin tocar la consola.
 _captcha_input_lock = asyncio.Lock()
 
 
