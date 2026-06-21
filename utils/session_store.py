@@ -109,6 +109,32 @@ class SessionStore:
             logger.warning("Failed to save session '%s': %s", session_file.name, exc)
             return False
 
+    def save_state_dict(self, name: str, state: dict[str, Any]) -> bool:
+        """
+        Guarda un storage_state dict directamente en disco sin necesidad de un contexto.
+
+        Útil para guardar estado extraído previamente de un contexto cerrado.
+
+        Args:
+            name: Nombre identificador de la sesión (p.ej. "worker_1_google").
+            state: Dict de storage_state de Playwright.
+
+        Returns:
+            True si el guardado fue exitoso, False si falló.
+        """
+        session_file = self._path / _domain_to_filename(name)
+        try:
+            with session_file.open("w", encoding="utf-8") as fp:
+                json.dump(state, fp, indent=2, ensure_ascii=False)
+            cookie_count = len(state.get("cookies", []))
+            logger.debug(
+                "Session saved: %s (%d cookies)", session_file.name, cookie_count
+            )
+            return True
+        except Exception as exc:
+            logger.warning("Failed to save session '%s': %s", session_file.name, exc)
+            return False
+
     def load_state_dict(self, domain: str) -> dict[str, Any] | None:
         """
         Carga el storage_state desde disco sin necesidad de un contexto activo.
@@ -116,7 +142,7 @@ class SessionStore:
         Útil para pasar directamente a ``browser.new_context(storage_state=...)``.
 
         Args:
-            domain: Identificador de dominio.
+            domain: Identificador de dominio o nombre de sesión.
 
         Returns:
             Dict de storage_state, o None si no existe sesión guardada.

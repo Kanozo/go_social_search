@@ -3,32 +3,31 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class KeywordRecord(BaseModel):
     """Registro de keyword en Supabase."""
     id: int
-    scraped_at: datetime
-    keyword: str | None = None
-    platform: str | None = None
-    scraping: bool = False
-    engine: str | None = None
-    label: str | None = None
+    term: str
+    scraped_at: Optional[datetime] = None
 
 
-class KeywordClaimResult(BaseModel):
-    """Resultado de reclamar keywords para scraping."""
-    id: int
-    keyword: str
-    platform: str
-    engine: str
-    label: str
+class KeywordBatch(BaseModel):
+    """Lote de keywords reclamadas para procesamiento."""
+    keywords: list[KeywordRecord]
 
 
-class UrlRecord(BaseModel):
-    """URL a insertar en Supabase."""
+class EngineConfig(BaseModel):
+    """Configuración de un motor de búsqueda."""
+    name: str
+    engine_id: str
+    platform: str  # facebook | instagram (el motor pertenece a una plataforma)
+
+
+class ScrapedResult(BaseModel):
+    """Resultado de scraping de una URL."""
     url: str
-    keyword: str
-    platform: str
-    send_tg: bool = False
+    platform: str  # La plataforma viene del motor, no de la keyword
+    published_at: Optional[datetime] = None
+    published_at_raw: Optional[str] = None

@@ -2,11 +2,11 @@
 google_cse_automator.py
 Motor de scraping sobre Google Custom Search Engine (CSE) con Camoufox.
 
-CORRECCIONES PAGINADO IMÁGENES (v2.6) – CORRECCIÓN DEFINITIVA
+CORRECCIONES CAPTCHA (v3.0) – FLUJO COMPLETO
 ──────────────────────────────────────────────────────────────
-  - _navigate_to_page ahora usa el paginador del tab activo (.gsc-tabdActive .gsc-cursor)
-    en lugar del primer .gsc-cursor del DOM, que pertenece al tab inactivo.
-  - Se elimina ambigüedad entre tabs Web e Image.
+  - CaptchaError se lanza explícitamente al detectar CAPTCHA.
+  - run_keyword retorna información de estado para reintento post-CAPTCHA.
+  - Navegación segura al reintentar tras resolución manual.
 """
 from __future__ import annotations
 
@@ -100,6 +100,15 @@ class ScrapedResult(TypedDict):
     published_at:     datetime | None
     published_at_raw: str | None
 
+
+class KeywordRunResult(TypedDict):
+    """Resultado de ejecutar una keyword."""
+    success:          bool
+    captcha_triggered: bool
+    last_page:        int
+    keyword:          str
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # BrowserConfig
 # ─────────────────────────────────────────────────────────────────────────────
@@ -123,6 +132,7 @@ class BrowserConfig:
         base = random.gauss(mid, sigma)
         extra = random.expovariate(5.0)
         return max(low, min(high * 1.5, base + extra * 0.2))
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # GoogleCSEAutomator
@@ -260,19 +270,33 @@ class GoogleCSEAutomator:
         await context.route("**/*", handle_route)
         logger.debug("Interceptor de imágenes activo.")
 
+    # ── Detección de CAPTCHA ────────────────────────────────────────────────
+    async def _check_captcha(self, page: Page, keyword: str) -> None:
+        """
+        Verifica si hay CAPTCHA en la página. Si lo detecta, lanza CaptchaError.
+        """
+        try:
+            await CaptchaDetector.check(page, keyword)
+        except CaptchaError:
+            logger.warning("[Automator] CAPTCHA detectado para '%s'", keyword)
+            raise
+
     # ── Extracción de resultados web ────────────────────────────────────────
     async def _extract_page_results(self, page: Page, keyword: str) -> None:
         await self._incremental_scroll(page)
-        await CaptchaDetector.check(page, keyword)
+        await self._check_captcha(page, keyword)
+        
         try:
             await page.wait_for_selector(".gsc-webResult", timeout=10_000)
         except PlaywrightTimeoutError:
-            await CaptchaDetector.check(page, keyword)
+            await self._check_captcha(page, keyword)
             logger.info("Sin resultados para '%s'.", keyword)
             return
+        
         results_container = page.locator(".gsc-expansionArea .gsc-webResult")
         count = await results_container.count()
         logger.debug("Parseando %d bloques para '%s'.", count, keyword)
+        
         for i in range(count):
             try:
                 container = results_container.nth(i)
@@ -297,12 +321,21 @@ class GoogleCSEAutomator:
     async def _save_to_supabase(self, keyword: str) -> tuple[int, int]:
         if not self._url_repo:
             return 0, 0
+        
         urls_to_insert = [
-            {"url": item["url"], "keyword": keyword, "platform": item["platform"], "send_tg": False}
-            for item in self._scraped_results if item.get("url")
+            {
+                "url": item["url"],
+                "keyword": keyword,
+                "platform": item["platform"],
+                "send_tg": False,
+            }
+            for item in self._scraped_results 
+            if item.get("url")
         ]
+        
         if not urls_to_insert:
             return 0, 0
+            
         return await self._url_repo.bulk_insert_urls(urls_to_insert)
 
     async def _send_to_api(self) -> tuple[int, int]:
@@ -361,14 +394,13 @@ class GoogleCSEAutomator:
         except Exception as exc:
             logger.warning("Error en filtro de fecha: %s", exc)
 
-    # ── Navegación unificada (CORREGIDA: usa el paginador del tab activo) ───
+    # ── Navegación unificada ────────────────────────────────────────────────
     async def _navigate_to_page(self, page: Page, target: int) -> bool:
         target_str = str(target)
         retries = self.cfg.max_pagination_retries
         for attempt in range(1, retries + 1):
             logger.debug("Navegando a página %s (intento %d/%d)", target_str, attempt, retries)
 
-            # Paginador activo (esperamos que esté al menos en el DOM)
             paginator = page.locator(".gsc-tabdActive .gsc-cursor")
             try:
                 await paginator.wait_for(state="attached", timeout=8_000)
@@ -377,17 +409,14 @@ class GoogleCSEAutomator:
                 await asyncio.sleep(0.5)
                 continue
 
-            # Scroll para traerlo a la vista
             try:
                 await paginator.scroll_into_view_if_needed()
                 await asyncio.sleep(0.2)
             except Exception:
                 pass
 
-            # Selector principal (aria-label) + fallback por clase
             page_btn = paginator.locator(f'[aria-label="Page {target_str}"]')
             if await page_btn.count() == 0:
-                # Fallback: enlaces .gsc-cursor-page con texto exacto
                 page_btn = paginator.locator("a.gsc-cursor-page", has_text=target_str)
                 count = await page_btn.count()
                 if count > 0:
@@ -406,7 +435,6 @@ class GoogleCSEAutomator:
                 logger.debug("Botón 'Page %s' no encontrado con ningún selector.", target_str)
                 continue
 
-            # Clic seguro
             try:
                 await page_btn.scroll_into_view_if_needed()
                 await page_btn.wait_for(state="visible", timeout=3_000)
@@ -419,7 +447,6 @@ class GoogleCSEAutomator:
                 logger.warning("Error al clic en página %s: %s", target_str, exc)
                 continue
 
-            # Confirmación de página
             try:
                 await paginator.locator(
                     f".gsc-cursor-current-page:has-text('{target_str}')"
@@ -433,8 +460,8 @@ class GoogleCSEAutomator:
 
         logger.error("Agotados reintentos para página %s.", target_str)
         return False
-    
-        # ── Scraping de imágenes ─────────────────────────────────────────────────
+
+    # ── Scraping de imágenes ─────────────────────────────────────────────────
     async def _scrape_image_results(self, page: Page, keyword: str, total_pages: int = 3) -> None:
         context = page.context
         image_tab = page.locator('div[aria-label="refinement"][role="tab"]:has-text("Image")')
@@ -443,6 +470,7 @@ class GoogleCSEAutomator:
         except PlaywrightTimeoutError:
             logger.debug("Pestaña Image no encontrada.")
             return
+        
         class_attr = await image_tab.get_attribute("class") or ""
         if "gsc-tabhActive" not in class_attr:
             logger.info("🖼 Cambiando a búsqueda por imágenes...")
@@ -453,7 +481,6 @@ class GoogleCSEAutomator:
             except Exception:
                 await self._quick_move_and_click(page, image_tab)
             await asyncio.sleep(2.0)
-            # Esperar a que el tab de imágenes esté activo
             try:
                 await page.wait_for_selector(".gsc-tabdActive a.gs-previewLink", state="attached", timeout=10_000)
             except PlaywrightTimeoutError:
@@ -464,7 +491,6 @@ class GoogleCSEAutomator:
             await self._unblock_images(context)
             await asyncio.sleep(0.5)
 
-        # Asegurarse de que hay previews
         try:
             await page.wait_for_selector("a.gs-previewLink", state="attached", timeout=5_000)
         except PlaywrightTimeoutError:
@@ -475,7 +501,6 @@ class GoogleCSEAutomator:
         processed_urls: set[str] = set()
         for img_page in range(1, total_pages + 1):
             logger.info("🖼 Página imágenes %d/%d | '%s'", img_page, total_pages, keyword)
-            # Scroll para cargar imágenes
             await self._incremental_scroll(page)
             preview_links = page.locator("a.gs-previewLink")
             link_count = await preview_links.count()
@@ -504,7 +529,6 @@ class GoogleCSEAutomator:
                 await self._persist_results(keyword)
                 self._scraped_results.clear()
             if img_page < total_pages:
-                # Pequeño scroll extra para asegurar que el paginador esté al alcance
                 await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
                 await asyncio.sleep(0.3)
                 success = await self._navigate_to_page(page, img_page + 1)
@@ -548,46 +572,126 @@ class GoogleCSEAutomator:
         await CaptchaDetector.intercept_response_errors(page)
         logger.debug("Page setup completo.")
 
-    async def run_keyword(self, page: Page, keyword: str, total_pages: int = 3) -> None:
+    # ── Método principal: run_keyword ───────────────────────────────────────
+    async def run_keyword(
+        self,
+        page: Page,
+        keyword: str,
+        total_pages: int = 3,
+        start_page: int = 1,
+    ) -> KeywordRunResult:
+        """
+        Ejecuta scraping de una keyword.
+        
+        Args:
+            page: Página de Playwright activa.
+            keyword: Término de búsqueda.
+            total_pages: Páginas de resultados a scrapear.
+            start_page: Página inicial (para reintento post-CAPTCHA).
+            
+        Returns:
+            KeywordRunResult con estado de ejecución.
+            last_page = página donde ocurrió CAPTCHA (para reanudar desde allí).
+        """
         self._scraped_results.clear()
-        await self._inject_referrer(page)
-        await page.goto(self._search_url, wait_until="domcontentloaded", timeout=20_000)
-        await CaptchaDetector.check(page, keyword)
-        try:
-            await page.wait_for_selector("input.gsc-input", state="visible", timeout=8_000)
-        except PlaywrightTimeoutError:
-            logger.warning("Timeout esperando search box.")
-        search_box = page.locator("input.gsc-input")
-        await search_box.click(timeout=3_000)
-        await human_type(page, "input.gsc-input", keyword, clear_first=True, wpm=random.randint(80, 130))
-        await asyncio.sleep(random.uniform(0.2, 0.4))
-        await page.keyboard.press("Enter")
-        try:
-            await page.wait_for_selector(".gsc-webResult", state="visible", timeout=12_000)
-        except PlaywrightTimeoutError:
-            await CaptchaDetector.check(page, keyword)
-            logger.info("Sin resultados para '%s'.", keyword)
-            return
-        await CaptchaDetector.check(page, keyword)
-        await self._apply_date_filter(page)
+        
+        # Si es reintento (start_page > 1), no rehacer búsqueda inicial
+        if start_page == 1:
+            await self._inject_referrer(page)
+            await page.goto(self._search_url, wait_until="domcontentloaded", timeout=20_000)
+            await self._check_captcha(page, keyword)
+            
+            try:
+                await page.wait_for_selector("input.gsc-input", state="visible", timeout=8_000)
+            except PlaywrightTimeoutError:
+                logger.warning("Timeout esperando search box.")
+            
+            search_box = page.locator("input.gsc-input")
+            await search_box.click(timeout=3_000)
+            await human_type(page, "input.gsc-input", keyword, clear_first=True, wpm=random.randint(80, 130))
+            await asyncio.sleep(random.uniform(0.2, 0.4))
+            await page.keyboard.press("Enter")
+            
+            try:
+                await page.wait_for_selector(".gsc-webResult", state="visible", timeout=12_000)
+            except PlaywrightTimeoutError:
+                await self._check_captcha(page, keyword)
+                logger.info("Sin resultados para '%s'.", keyword)
+                return KeywordRunResult(success=True, captcha_triggered=False, last_page=1, keyword=keyword)
+            
+            await self._check_captcha(page, keyword)
+            await self._apply_date_filter(page)
 
-        for current_p in range(1, total_pages + 1):
+        # Scrapear páginas desde start_page
+        for current_p in range(start_page, total_pages + 1):
             logger.info("Página %d/%d | '%s'", current_p, total_pages, keyword)
+            
             try:
                 await self._extract_page_results(page, keyword)
             except CaptchaError:
-                # Relanzar para que el orquestador active su nueva lógica de espera/restart
-                raise
+                # CAPTCHA en esta página - retornar para que el orquestador maneje
+                # last_page = current_p (la página donde ocurrió)
+                logger.warning("CAPTCHA detectado en página %d de '%s'", current_p, keyword)
+                raise  # Propagar para que el orquestador capture y maneje
+            
             await self._persist_results(keyword)
             self._scraped_results.clear()
+            
             if current_p < total_pages:
                 if not await self._navigate_to_page(page, current_p + 1):
                     logger.warning("No se pudo navegar a página %d.", current_p + 1)
                     break
 
+        # Scrapear imágenes (solo si completamos todas las páginas web)
         try:
             await self._scrape_image_results(page, keyword, total_pages)
         except CaptchaError:
             raise
         except Exception as exc:
             logger.error("Error en búsqueda de imágenes: %s", exc)
+
+        return KeywordRunResult(success=True, captcha_triggered=False, last_page=total_pages, keyword=keyword)
+
+    async def run_keyword_after_captcha(
+        self,
+        page: Page,
+        keyword: str,
+        total_pages: int = 3,
+        last_page: int = 1,
+    ) -> KeywordRunResult:
+        """
+        Reanuda scraping de una keyword después de que el usuario resolvió CAPTCHA.
+        
+        Args:
+            page: Página de Playwright (ahora sin CAPTCHA).
+            keyword: Término de búsqueda.
+            total_pages: Total de páginas a scrapear.
+            last_page: Última página DONDE OCURRIÓ el CAPTCHA (se reanuda desde aquí).
+            
+        Returns:
+            KeywordRunResult con estado de ejecución.
+        """
+        logger.info("Reanudando '%s' desde página %d tras CAPTCHA resuelto.", keyword, last_page)
+        
+        # Verificar que realmente no hay CAPTCHA
+        try:
+            await page.wait_for_selector(".gsc-webResult", state="visible", timeout=10_000)
+        except PlaywrightTimeoutError:
+            logger.warning("Aún no hay resultados visibles tras CAPTCHA.")
+            # Intentar recargar la página de búsqueda
+            await page.goto(self._search_url, wait_until="domcontentloaded", timeout=20_000)
+            # Rehacer la búsqueda
+            search_box = page.locator("input.gsc-input")
+            await search_box.click(timeout=3_000)
+            await human_type(page, "input.gsc-input", keyword, clear_first=True, wpm=random.randint(80, 130))
+            await asyncio.sleep(random.uniform(0.2, 0.4))
+            await page.keyboard.press("Enter")
+            try:
+                await page.wait_for_selector(".gsc-webResult", state="visible", timeout=12_000)
+            except PlaywrightTimeoutError:
+                logger.error("No se pueden recuperar resultados tras CAPTCHA.")
+                return KeywordRunResult(success=False, captcha_triggered=False, last_page=last_page, keyword=keyword)
+        
+        # Continuar DESDE la página donde ocurrió el CAPTCHA
+        # No sumamos +1 porque la página where ocurrió no se completó
+        return await self.run_keyword(page, keyword, total_pages, start_page=last_page)
