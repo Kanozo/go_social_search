@@ -193,7 +193,7 @@ class GoogleCSEAutomator:
         if not is_fresh_session:
             logger.debug("Warmup omitido.")
             return
-        await page.goto(self.cfg.warmup_url, wait_until="domcontentloaded", timeout=10_000)
+        await page.goto(self.cfg.warmup_url, wait_until="domcontentloaded", timeout=30_000)
         await asyncio.sleep(random.uniform(0.1, 0.3))
         logger.debug("Warmup completado.")
 
@@ -367,28 +367,59 @@ class GoogleCSEAutomator:
         retries = self.cfg.max_pagination_retries
         for attempt in range(1, retries + 1):
             logger.debug("Navegando a página %s (intento %d/%d)", target_str, attempt, retries)
-            # Seleccionar SOLO el paginador del tab actualmente activo
+
+            # Paginador activo (esperamos que esté al menos en el DOM)
             paginator = page.locator(".gsc-tabdActive .gsc-cursor")
             try:
-                await paginator.wait_for(state="visible", timeout=5_000)
+                await paginator.wait_for(state="attached", timeout=8_000)
             except PlaywrightTimeoutError:
-                logger.debug("Paginador activo no visible.")
+                logger.debug("Paginador activo no aparece en DOM.")
                 await asyncio.sleep(0.5)
                 continue
-            # Botón destino dentro de ese paginador
+
+            # Scroll para traerlo a la vista
+            try:
+                await paginator.scroll_into_view_if_needed()
+                await asyncio.sleep(0.2)
+            except Exception:
+                pass
+
+            # Selector principal (aria-label) + fallback por clase
             page_btn = paginator.locator(f'[aria-label="Page {target_str}"]')
+            if await page_btn.count() == 0:
+                # Fallback: enlaces .gsc-cursor-page con texto exacto
+                page_btn = paginator.locator("a.gsc-cursor-page", has_text=target_str)
+                count = await page_btn.count()
+                if count > 0:
+                    for i in range(count):
+                        btn = page_btn.nth(i)
+                        text = (await btn.text_content() or "").strip()
+                        if text == target_str:
+                            page_btn = btn
+                            break
+                    else:
+                        page_btn = None
+                else:
+                    page_btn = None
+
+            if page_btn is None:
+                logger.debug("Botón 'Page %s' no encontrado con ningún selector.", target_str)
+                continue
+
+            # Clic seguro
             try:
                 await page_btn.scroll_into_view_if_needed()
                 await page_btn.wait_for(state="visible", timeout=3_000)
                 await page_btn.click(timeout=3_000)
                 logger.debug("Clic en página %s exitoso.", target_str)
             except PlaywrightTimeoutError:
-                logger.debug("Botón 'Page %s' no encontrado.", target_str)
-                return False
+                logger.debug("Botón 'Page %s' no visible o no clickable.", target_str)
+                continue
             except Exception as exc:
                 logger.warning("Error al clic en página %s: %s", target_str, exc)
                 continue
-            # Confirmar cambio
+
+            # Confirmación de página
             try:
                 await paginator.locator(
                     f".gsc-cursor-current-page:has-text('{target_str}')"
@@ -399,10 +430,11 @@ class GoogleCSEAutomator:
             except PlaywrightTimeoutError:
                 logger.warning("No se confirmó página %s.", target_str)
                 continue
+
         logger.error("Agotados reintentos para página %s.", target_str)
         return False
-
-    # ── Scraping de imágenes ─────────────────────────────────────────────────
+    
+        # ── Scraping de imágenes ─────────────────────────────────────────────────
     async def _scrape_image_results(self, page: Page, keyword: str, total_pages: int = 3) -> None:
         context = page.context
         image_tab = page.locator('div[aria-label="refinement"][role="tab"]:has-text("Image")')
@@ -527,8 +559,8 @@ class GoogleCSEAutomator:
             logger.warning("Timeout esperando search box.")
         search_box = page.locator("input.gsc-input")
         await search_box.click(timeout=3_000)
-        await human_type(page, "input.gsc-input", keyword, clear_first=True, wpm=random.randint(80,130))
-        await asyncio.sleep(random.uniform(0.2,0.4))
+        await human_type(page, "input.gsc-input", keyword, clear_first=True, wpm=random.randint(80, 130))
+        await asyncio.sleep(random.uniform(0.2, 0.4))
         await page.keyboard.press("Enter")
         try:
             await page.wait_for_selector(".gsc-webResult", state="visible", timeout=12_000)
@@ -538,24 +570,21 @@ class GoogleCSEAutomator:
             return
         await CaptchaDetector.check(page, keyword)
         await self._apply_date_filter(page)
+
         for current_p in range(1, total_pages + 1):
             logger.info("Página %d/%d | '%s'", current_p, total_pages, keyword)
             try:
                 await self._extract_page_results(page, keyword)
-            except CaptchaError as cap_err:
-                logger.warning("CAPTCHA detectado (%s).", cap_err.signal)
-                self._play_alert_sound()
-                if await CaptchaAutosolver.try_solve_checkbox(page=page, keyword=keyword, max_attempts=2):
-                    logger.info("CAPTCHA resuelto.")
-                    await self._extract_page_results(page, keyword)
-                else:
-                    raise
+            except CaptchaError:
+                # Relanzar para que el orquestador active su nueva lógica de espera/restart
+                raise
             await self._persist_results(keyword)
             self._scraped_results.clear()
             if current_p < total_pages:
                 if not await self._navigate_to_page(page, current_p + 1):
                     logger.warning("No se pudo navegar a página %d.", current_p + 1)
                     break
+
         try:
             await self._scrape_image_results(page, keyword, total_pages)
         except CaptchaError:
