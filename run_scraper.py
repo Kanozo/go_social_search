@@ -1,6 +1,6 @@
 """
 Orquestador principal del scraper con ejecución concurrente por worker.
-Cada worker es stateless: pide lote, procesa en UN motor aleatorio FB + UN motor aleatorio IG, marca, desconecta.
+Cada worker es stateless: pide lote, procesa en 1 motor aleatorio FB + 1 motor aleatorio IG, maneja CAPTCHA, marca, desconecta.
 """
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import random
 import signal
 import sys
 from pathlib import Path
-from typing import Final, Any
+from typing import Any, Final
 
 from camoufox.async_api import AsyncCamoufox
 from playwright.async_api import Browser, BrowserContext, Page
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 MAX_CONCURRENT_WORKERS: Final[int] = settings.MAX_CONCURRENT_WORKERS
 KEYWORDS_PER_BATCH: Final[int] = settings.KEYWORDS_PER_BATCH
-CAPTCHA_TIMEOUT_SECONDS: Final[int] = 120  # 2 minutos para resolver
+CAPTCHA_TIMEOUT_SECONDS: Final[int] = 120
 
 
 class WorkerConfig:
@@ -174,19 +174,14 @@ class ScraperWorker:
         fingerprint: BrowserFingerprint,
         captcha_url: str,
     ) -> tuple[AsyncCamoufox, Browser, BrowserContext, Page] | None:
-        """
-        Cambia de headless a visible para que el usuario resuelva el CAPTCHA.
-        Preserva la sesión del worker.
-        """
+        """Cambia de headless a visible para que el usuario resuelva el CAPTCHA."""
         logger.info(
             "[Worker-%d] Cambiando a VISIBLE para resolución de CAPTCHA...",
             self.worker_id,
         )
 
-        # Guardar sesión antes de cerrar
         await self._save_context_state(old_context)
 
-        # Cierre limpio del browser headless
         for resource in (old_context, old_browser):
             try:
                 await resource.close()
@@ -199,7 +194,6 @@ class ScraperWorker:
 
         await asyncio.sleep(1)
 
-        # Iniciar nuevo browser visible
         camoufox_os = self._map_platform_to_camoufox_os(fingerprint.navigator_platform)
         camoufox_params: dict = {
             "headless": False,
@@ -221,7 +215,6 @@ class ScraperWorker:
                 fingerprint=fingerprint,
             )
 
-            # Navegar a la URL del CAPTCHA
             if captcha_url:
                 try:
                     await new_page.goto(
@@ -235,7 +228,6 @@ class ScraperWorker:
                         self.worker_id, nav_exc,
                     )
 
-            # Mostrar banner de alerta
             try:
                 await new_page.evaluate("""
                     () => {
@@ -249,8 +241,7 @@ class ScraperWorker:
             except Exception:
                 pass
 
-            # Reproducir sonido de alerta
-            GoogleCSEAutomator._play_alert_sound()
+            # SONIDO ELIMINADO DE AQUÍ (ya suena en el método padre)
 
             logger.info(
                 "[Worker-%d] ══ NAVEGADOR VISIBLE ══ Resuelve el CAPTCHA",
@@ -266,29 +257,21 @@ class ScraperWorker:
                 self.worker_id, exc,
             )
             return None
-
-    async def _wait_for_captcha_resolution(self, page: Page) -> bool:
-        """
-        Espera a que el usuario resuelva el CAPTCHA.
-        Detecta resolución por aparición de resultados .gsc-webResult.
         
-        Returns:
-            True si se resolvió, False si timeout.
-        """
+    async def _wait_for_captcha_resolution(self, page: Page) -> bool:
+        """Espera a que el usuario resuelva el CAPTCHA (2 minutos)."""
         logger.info(
             "[Worker-%d] Esperando resolución de CAPTCHA (%ds)...",
             self.worker_id, CAPTCHA_TIMEOUT_SECONDS,
         )
 
         try:
-            # Esperar a que aparezcan resultados (indica CAPTCHA resuelto)
             await page.wait_for_selector(
                 ".gsc-webResult",
                 state="visible",
                 timeout=CAPTCHA_TIMEOUT_SECONDS * 1000,
             )
             
-            # Quitar banner de alerta si existe
             try:
                 await page.evaluate("""
                     () => {
@@ -318,16 +301,12 @@ class ScraperWorker:
         browser: Browser | None,
         context: BrowserContext | None,
     ) -> tuple[AsyncCamoufox, Browser, BrowserContext, Page]:
-        """
-        Cierra el browser actual e inicia uno nuevo con perfil limpio.
-        Usado cuando el CAPTCHA no se resolvió.
-        """
+        """Cierra el browser actual e inicia uno nuevo con perfil limpio."""
         logger.info(
             "[Worker-%d] Reiniciando browser con perfil limpio...",
             self.worker_id,
         )
 
-        # Cierre limpio
         if context:
             try:
                 await context.close()
@@ -346,10 +325,8 @@ class ScraperWorker:
 
         await asyncio.sleep(2)
 
-        # Borrar sesión para forzar perfil limpio
         self._session_store.delete(self._session_name())
 
-        # Nuevo fingerprint y browser
         fingerprint: BrowserFingerprint = generate_fingerprint("firefox")
         camoufox_os = self._map_platform_to_camoufox_os(fingerprint.navigator_platform)
 
@@ -373,12 +350,7 @@ class ScraperWorker:
         return new_camoufox, new_browser, new_context, new_page
 
     def _select_random_engine_per_platform(self) -> list[EngineConfig]:
-        """
-        Selecciona exactamente un motor aleatorio por plataforma.
-        
-        Returns:
-            Lista con 1 motor de Facebook y 1 motor de Instagram (aleatorios).
-        """
+        """Selecciona exactamente un motor aleatorio por plataforma."""
         selected_engines: list[EngineConfig] = []
         
         for platform in ["facebook", "instagram"]:
@@ -400,14 +372,7 @@ class ScraperWorker:
         engine: EngineConfig,
         db: SupabaseManager,
     ) -> tuple[bool, bool]:
-        """
-        Procesa una keyword en un motor específico.
-        
-        Returns:
-            Tupla (success, captcha_triggered):
-            - success: True si se completó sin errores
-            - captcha_triggered: True si se detectó CAPTCHA
-        """
+        """Procesa una keyword en un motor específico."""
         logger.info(
             "[Worker-%d] '%s' → motor '%s' (%s)",
             self.worker_id, keyword.term, engine.name, engine.platform,
@@ -421,7 +386,7 @@ class ScraperWorker:
                 config=self._cfg,
             )
 
-            await engine_automator.run_keyword(
+            result = await engine_automator.run_keyword(
                 page, keyword.term, settings.TOTAL_PAGES_PER_KEYWORD
             )
             
@@ -431,7 +396,7 @@ class ScraperWorker:
                 "[Worker-%d] Éxito: '%s' en '%s' (%s)",
                 self.worker_id, keyword.term, engine.name, engine.platform,
             )
-            return True, False
+            return result['success'], False
 
         except CaptchaError as captcha_exc:
             logger.warning(
@@ -447,7 +412,6 @@ class ScraperWorker:
             )
             return False, False
 
-
     async def _process_keyword_with_captcha_handling(
         self,
         browser: Browser,
@@ -459,7 +423,7 @@ class ScraperWorker:
         page: Page,
         fingerprint: BrowserFingerprint,
     ) -> tuple[bool, AsyncCamoufox, Browser, BrowserContext, Page]:
-        # Crear el automator para este motor
+        """Procesa una keyword con manejo completo de CAPTCHA."""
         engine_automator = GoogleCSEAutomator(
             cse_id=engine.engine_id,
             platform=engine.platform,
@@ -467,32 +431,24 @@ class ScraperWorker:
             config=self._cfg,
         )
         
-        captcha_page = 1  # Trackear en qué página ocurre el CAPTCHA
+        captcha_page = 1
         
         try:
-            # Intentar procesar la keyword normalmente
             result = await engine_automator.run_keyword(
                 page=page,
                 keyword=keyword.term,
                 total_pages=settings.TOTAL_PAGES_PER_KEYWORD,
             )
             
-            # Si llegamos aquí, no hubo CAPTCHA o se completó todo
             return result['success'], camoufox_instance, browser, context, page
 
         except CaptchaError:
-            # CAPTCHA detectado - determinar en qué página ocurrió
-            # El run_keyword lanzó CaptchaError durante _extract_page_results
-            # Necesitamos inspeccionar la página para saber dónde estamos
-            
-            # Verificar si hay paginador y qué página está activa
             try:
                 current_page_elem = page.locator(".gsc-cursor-current-page")
                 if await current_page_elem.count() > 0:
                     current_page_text = await current_page_elem.text_content()
                     captcha_page = int(current_page_text.strip()) if current_page_text else 1
                 else:
-                    # Si no hay paginador, probablemente es página 1
                     captcha_page = 1
             except Exception:
                 captcha_page = 1
@@ -501,11 +457,6 @@ class ScraperWorker:
                 "[Worker-%d] CAPTCHA detectado en página %d de '%s'",
                 self.worker_id, captcha_page, keyword.term,
             )
-            captcha_triggered = True
-
-        if not captcha_triggered:
-            # Sin CAPTCHA, todo normal (ya retornado arriba)
-            return True, camoufox_instance, browser, context, page
 
         # ===== CAPTCHA DETECTADO =====
         captcha_url = ""
@@ -514,23 +465,21 @@ class ScraperWorker:
         except Exception:
             pass
 
+        # ALERTA SONORA SIEMPRE (funciona en headless y visible)
+        GoogleCSEAutomator._play_alert_sound()
+
         # 1. Si está headless, cambiar a visible
         if self._current_headless and settings.BROWSER_VISIBLE_ON_CAPTCHA:
             switch_result = await self._switch_to_visible(
                 old_camoufox=camoufox_instance,
                 old_browser=browser,
                 old_context=context,
-                automator=GoogleCSEAutomator(
-                    cse_id=engine.engine_id,
-                    platform=engine.platform,
-                    config=self._cfg,
-                ),
+                automator=engine_automator,
                 fingerprint=fingerprint,
                 captcha_url=captcha_url,
             )
 
             if switch_result is None:
-                # Fallo al cambiar a visible, reiniciar limpio
                 new_camoufox, new_browser, new_context, new_page = await self._restart_browser_clean(
                     camoufox_instance, browser, context,
                 )
@@ -542,22 +491,20 @@ class ScraperWorker:
         resolved = await self._wait_for_captcha_resolution(page)
 
         if resolved:
-            # 3a. RESUELTO: Continuar DESDE la página donde ocurrió el CAPTCHA
             logger.info(
                 "[Worker-%d] Reintentando '%s' desde página %d tras CAPTCHA resuelto",
                 self.worker_id, keyword.term, captcha_page,
             )
             
             try:
-                # Usar run_keyword_after_captcha con la página correcta
                 result = await engine_automator.run_keyword_after_captcha(
                     page=page,
                     keyword=keyword.term,
                     total_pages=settings.TOTAL_PAGES_PER_KEYWORD,
-                    last_page=captcha_page,  # <-- Página donde ocurrió el CAPTCHA
+                    last_page=captcha_page,
                 )
                 
-                return result.success, camoufox_instance, browser, context, page
+                return result['success'], camoufox_instance, browser, context, page
                 
             except Exception as retry_exc:
                 logger.error(
@@ -567,7 +514,6 @@ class ScraperWorker:
                 return False, camoufox_instance, browser, context, page
 
         else:
-            # 3b. NO RESUELTO: Reiniciar browser limpio, saltar keyword
             logger.warning(
                 "[Worker-%d] Saltando '%s' por CAPTCHA no resuelto",
                 self.worker_id, keyword.term,
@@ -577,7 +523,7 @@ class ScraperWorker:
                 camoufox_instance, browser, context,
             )
             return False, new_camoufox, new_browser, new_context, new_page
-            
+
     async def _process_keyword_all_engines(
         self,
         browser: Browser,
@@ -587,10 +533,7 @@ class ScraperWorker:
         context: BrowserContext,
         page: Page,
     ) -> tuple[bool, AsyncCamoufox, Browser, BrowserContext, Page]:
-        """
-        Procesa una keyword en UN motor aleatorio de FB y UN motor aleatorio de IG.
-        Maneja CAPTCHA en cada motor.
-        """
+        """Procesa una keyword en UN motor aleatorio de FB y UN motor aleatorio de IG."""
         engines_to_run = self._select_random_engine_per_platform()
         
         if not engines_to_run:
@@ -619,18 +562,14 @@ class ScraperWorker:
             if success:
                 any_success = True
             
-            # Pequeña pausa entre motores
             await asyncio.sleep(0.5)
 
-        # Guardar sesión al finalizar todos los motores
         await self._save_context_state(context)
 
         return any_success, camoufox_instance, browser, context, page
 
     async def _run_batch(self, db: SupabaseManager) -> int:
-        """
-        Ejecuta un ciclo completo: reclama lote, procesa en motores aleatorios, maneja CAPTCHA.
-        """
+        """Ejecuta un ciclo completo: reclama lote, procesa, maneja CAPTCHA."""
         if not db.keyword_repo:
             logger.error("[Worker-%d] Keyword repo no disponible", self.worker_id)
             return 0
@@ -746,7 +685,7 @@ class ScraperWorker:
 
 
 class WorkerPool:
-    """Pool de workers concurrentes. Todos procesan el mismo pool de keywords."""
+    """Pool de workers concurrentes."""
 
     def __init__(self) -> None:
         self._workers: list[ScraperWorker] = []

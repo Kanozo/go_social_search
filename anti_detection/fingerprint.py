@@ -13,7 +13,7 @@ import random
 from dataclasses import dataclass, field
 from typing import Any
 
-from reaper.anti_detection.stealth_scripts import build_full_stealth_script
+from anti_detection.stealth_scripts import build_full_stealth_script
 
 
 # ─────────────────────────────────────────────────────────────────────────────

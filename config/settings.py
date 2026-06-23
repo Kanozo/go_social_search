@@ -1,8 +1,5 @@
 """
 Lectura de configuración desde config.ini con configparser puro (stdlib).
-
-Sin dependencias externas. El fichero config.ini es el contrato estable;
-este módulo mapea sus secciones/claves a atributos tipados de _Settings.
 """
 from __future__ import annotations
 
@@ -21,16 +18,13 @@ _INI_PATH: Path = Path(__file__).parent.parent / "config.ini"
 class _Settings:
     """
     Configuración completa del scraper leída desde config.ini.
-
-    Atributos tipados con valores por defecto que replican los del ini.
-    Las secciones y claves coinciden exactamente con config.ini.
     """
 
     def __init__(self, ini_path: Path = _INI_PATH) -> None:
         if not ini_path.exists():
             warnings.warn(
                 f"config.ini no encontrado en '{ini_path}'. "
-                "Se usarán los valores por defecto para todos los parámetros.",
+                "Se usarán los valores por defecto.",
                 stacklevel=2,
             )
 
@@ -39,8 +33,6 @@ class _Settings:
             inline_comment_prefixes=(";", "#"),
         )
         parser.read(ini_path, encoding="utf-8")
-
-        # ── Helpers internos ─────────────────────────────────────────────────
 
         def _str(section: str, key: str, fallback: str = "") -> str:
             return parser.get(section, key, fallback=fallback).strip()
@@ -79,8 +71,8 @@ class _Settings:
         self.CAMOUFOX_LAUNCH_DELAY: float = _float("camoufox", "launch_delay", 3.0)
 
         # ── [concurrency] ────────────────────────────────────────────────────
-        self.MAX_CONCURRENT_WORKERS: int = _int("concurrency", "max_workers", 4)
-        self.MAX_CONCURRENT_BROWSERS: int = _int("concurrency", "max_browsers", 2)
+        # Solo max_workers: cada worker usa 1 browser propio
+        self.MAX_CONCURRENT_WORKERS: int = _int("concurrency", "max_workers", 2)
 
         # ── [scraping] ───────────────────────────────────────────────────────
         self.CYCLE_DELAY_SECONDS: int = _int("scraping", "cycle_delay_seconds", 120)
@@ -92,7 +84,6 @@ class _Settings:
         self.SESSION_PERSIST: bool = _bool("session", "persist", True)
 
         # ── [paths] ──────────────────────────────────────────────────────────
-        # Sección opcional; si no existe usa rutas relativas al CWD.
         self.SESSION_DIR: Path = Path(_str("paths", "session_dir", "sessions"))
         self.LOG_DIR: Path = Path(_str("paths", "log_dir", "logs"))
 
@@ -104,8 +95,6 @@ class _Settings:
         self.LOG_BACKUP_COUNT: int = _int("logging", "backup_count", 3)
 
         # ── [engines] ────────────────────────────────────────────────────────
-        # Motores de Google Custom Search por plataforma.
-        # Parsea dinámicamente desde config.ini: fb_engine_* → facebook, ig_engine_* → instagram
         self.ENGINES: dict[str, list[dict[str, str]]] = {"facebook": [], "instagram": []}
 
         if parser.has_section("engines"):
@@ -132,24 +121,22 @@ class _Settings:
                         engine_name,
                     )
 
-        # Fallback si no hay motores configurados
         if not self.ENGINES["facebook"] and not self.ENGINES["instagram"]:
             logger.warning(
                 "No se encontraron motores en [engines]. Usando valores por defecto."
             )
             self.ENGINES = {
                 "facebook": [
-                    {"name": "fb_engine_1", "engine_id": "294a079ba2d4267d5"},
-                    {"name": "fb_engine_2", "engine_id": "b3d8ab5d4c4a84c70"},
+                    {"name": "fb_engine_1", "engine_id": "c4b97eed1414fcb14"},
+                    {"name": "fb_engine_2", "engine_id": "a1b2c3d4e5f678901"},
                 ],
                 "instagram": [
-                    {"name": "ig_engine_1", "engine_id": "c4b97eed1414fcb14"},
-                    {"name": "ig_engine_2", "engine_id": "f680c4541968447d4"},
+                    {"name": "ig_engine_1", "engine_id": "x9y8z7w6v5u4t3s2"},
+                    {"name": "ig_engine_2", "engine_id": "r1q2p3o4n5m6l7k8"},
                 ],
             }
 
     def __repr__(self) -> str:
-        """Oculta tokens en repr para que no aparezcan en logs."""
         supabase_url_display = (
             f"{self.SUPABASE_URL[:30]}..."
             if len(self.SUPABASE_URL) > 30
@@ -177,17 +164,9 @@ class _Settings:
 
 @lru_cache(maxsize=1)
 def _load_settings() -> _Settings:
-    """
-    Carga y cachea la instancia singleton de _Settings.
-
-    El ini se parsea exactamente una vez por proceso. En tests:
-        _load_settings.cache_clear()
-        settings = _load_settings()
-    """
     instance = _Settings()
     logger.debug("Settings cargados: %r", instance)
     return instance
 
 
-# Singleton de acceso directo: from config.settings import settings
 settings: _Settings = _load_settings()
